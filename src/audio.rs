@@ -23,7 +23,7 @@ pub struct AudioEmitter;
 
 fn play_loop(mut commands: Commands, asset_server: Res<AssetServer>, audio: Res<Audio>) {
     let handle = audio
-        .play(asset_server.load("sine_wave.wav"))
+        .play(asset_server.load("bevy jam song - 0002 - Instrument - Drums1.ogg"))
         .looped()
         .handle();
     commands.insert_resource(AudioInstanceHandle(handle));
