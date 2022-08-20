@@ -1,7 +1,9 @@
-mod player_actions;
+mod player;
+mod spirit;
 
 use bevy::prelude::*;
-use player_actions::*;
+use player::*;
+use spirit::*;
 
 pub const LAUNCHER_TITLE: &str = "Bevy Shell - Template";
 
@@ -15,14 +17,11 @@ pub fn app() -> App {
     })
     .add_plugins(DefaultPlugins)
     .add_plugin(PlayerPlugin)
-    .add_startup_system(load_icon);
+    .add_plugin(SpiritPlugin)
+    .add_startup_system(load_camera);
     app
 }
 
-fn load_icon(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn load_camera(mut commands: Commands) {
     commands.spawn_bundle(Camera2dBundle::default());
-    commands.spawn_bundle(SpriteBundle {
-        texture: asset_server.load("bevy.png"),
-        ..default()
-    }).insert(PlayerControl);
 }
