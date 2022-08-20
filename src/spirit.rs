@@ -1,13 +1,15 @@
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 
-use crate::audio::AudioEmitter;
+use crate::{audio::AudioEmitter, states::States};
 
 pub struct SpiritPlugin;
 
 impl Plugin for SpiritPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_startup_system(spawn_spirit);
+        .add_system_set(
+            SystemSet::on_enter(States::InGame).with_system(spawn_spirit),
+        );
     }
 }
 

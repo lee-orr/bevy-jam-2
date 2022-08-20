@@ -1,7 +1,9 @@
 use std::f32::consts::PI;
 
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
-use leafwing_input_manager::{prelude::*, orientation::Orientation};
+use leafwing_input_manager::{orientation::Orientation, prelude::*};
+
+use crate::states::States;
 
 pub struct PlayerPlugin;
 
@@ -9,9 +11,14 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(InputManagerPlugin::<Action>::default())
             .init_resource::<PlayerControlSettings>()
-            .add_startup_system(spawn_player)
-            .add_system(setup_player_control)
-            .add_system(move_player);
+            .add_system_set(
+                SystemSet::on_enter(States::InGame).with_system(spawn_player),
+            )
+            .add_system_set(
+                SystemSet::on_update(States::InGame)
+                    .with_system(setup_player_control)
+                    .with_system(move_player),
+            );
     }
 }
 
@@ -28,7 +35,7 @@ pub struct PlayerControl;
 
 pub struct PlayerControlSettings {
     move_speed: f32,
-    rotate_speed: f32
+    rotate_speed: f32,
 }
 
 impl Default for PlayerControlSettings {
@@ -40,22 +47,31 @@ impl Default for PlayerControlSettings {
     }
 }
 
-fn spawn_player(mut commands: Commands,
+fn spawn_player(
+    mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,) {
-    commands.spawn_bundle(MaterialMesh2dBundle {
-        mesh: meshes.add(Mesh::from(shape::Circle::default())).into(),
-        transform: Transform::default().with_translation(Vec3::new(1.,0.,0.)).with_scale(Vec3::new(50., 50., 50.)),
-        material: materials.add(ColorMaterial::from(Color::RED)),
-        ..default()
-    }).insert(PlayerControl).with_children(|parent| {
-        parent.spawn_bundle(MaterialMesh2dBundle {
+    mut materials: ResMut<Assets<ColorMaterial>>,
+) {
+    commands
+        .spawn_bundle(MaterialMesh2dBundle {
             mesh: meshes.add(Mesh::from(shape::Circle::default())).into(),
-            transform: Transform::default().with_translation(Vec3::new(0.,0.5,0.)).with_scale(Vec3::new(0.2, 0.2, 0.2)),
-            material: materials.add(ColorMaterial::from(Color::GREEN)),
+            transform: Transform::default()
+                .with_translation(Vec3::new(1., 0., 0.))
+                .with_scale(Vec3::new(50., 50., 50.)),
+            material: materials.add(ColorMaterial::from(Color::RED)),
             ..default()
+        })
+        .insert(PlayerControl)
+        .with_children(|parent| {
+            parent.spawn_bundle(MaterialMesh2dBundle {
+                mesh: meshes.add(Mesh::from(shape::Circle::default())).into(),
+                transform: Transform::default()
+                    .with_translation(Vec3::new(0., 0.5, 0.))
+                    .with_scale(Vec3::new(0.2, 0.2, 0.2)),
+                material: materials.add(ColorMaterial::from(Color::GREEN)),
+                ..default()
+            });
         });
-    });
 }
 
 fn setup_player_control(
@@ -83,7 +99,14 @@ fn setup_player_control(
     }
 }
 
-fn move_player(mut query: Query<(&ActionState<Action>, &mut Transform), With<PlayerControl>>, player_settings: Res<PlayerControlSettings>, time: Res<Time>) {
+fn move_player(
+    mut query: Query<
+        (&ActionState<Action>, &mut Transform),
+        With<PlayerControl>,
+    >,
+    player_settings: Res<PlayerControlSettings>,
+    time: Res<Time>,
+) {
     let delta = time.delta().as_secs_f32();
     let speed = player_settings.move_speed;
     let rotation_speed = player_settings.rotate_speed;
@@ -97,14 +120,18 @@ fn move_player(mut query: Query<(&ActionState<Action>, &mut Transform), With<Pla
             transform.rotation = Quat::from_rotation_z(z_rotation);
         }
 
-        let direction_vector = transform.rotation.mul_vec3(if action.pressed(Action::MoveUp) {
-            Vec3::Y
-        } else if action.pressed(Action::MoveDown) {
-            Vec3::NEG_Y
-        } else {
-            Vec3::ZERO
-        });
+        let direction_vector =
+            transform
+                .rotation
+                .mul_vec3(if action.pressed(Action::MoveUp) {
+                    Vec3::Y
+                } else if action.pressed(Action::MoveDown) {
+                    Vec3::NEG_Y
+                } else {
+                    Vec3::ZERO
+                });
 
-        transform.translation += direction_vector.normalize_or_zero() * delta * speed;
+        transform.translation +=
+            direction_vector.normalize_or_zero() * delta * speed;
     }
 }

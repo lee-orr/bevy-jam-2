@@ -24,6 +24,7 @@ lto = true
 image = "0.24.3"
 winit = "0.26.1"
 leafwing-input-manager = "0.5.1"
+bevy_asset_loader = "*"
 
 [dependencies.bevy]
 version = "0.8"
