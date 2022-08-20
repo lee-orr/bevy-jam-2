@@ -1,7 +1,7 @@
 use std::io::Cursor;
 
 use bevy::{prelude::*, window::WindowId, winit::WinitWindows};
-use image;
+
 use winit::window::Icon;
 
 fn set_window_icon(windows: NonSend<WinitWindows>) {

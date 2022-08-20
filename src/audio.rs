@@ -1,7 +1,7 @@
 use std::f32::consts::PI;
 
-use crate::{loading_state::LoadedAssets, states::States};
-use bevy::{prelude::*, render::render_resource::encase::rts_array::Length};
+use crate::states::States;
+use bevy::prelude::*;
 use bevy_kira_audio::prelude::*;
 
 use super::player::PlayerControl;
@@ -49,7 +49,7 @@ fn adjust_audio_loop_position_and_volume(
 
     if let Ok(target) = target {
         for (emitter, handle, emitter_info) in emitters.iter() {
-            if let Some(mut instance) = instances.get_mut(&handle.0) {
+            if let Some(instance) = instances.get_mut(&handle.0) {
                 let diff = emitter.translation - target.translation;
                 let volume = (AUDIO_RANGE - diff.length()) / AUDIO_RANGE;
 

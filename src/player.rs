@@ -1,7 +1,7 @@
 use std::f32::consts::PI;
 
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
-use leafwing_input_manager::{orientation::Orientation, prelude::*};
+use leafwing_input_manager::{prelude::*};
 
 use crate::states::States;
 

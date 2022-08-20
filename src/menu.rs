@@ -6,16 +6,13 @@ pub struct MenuPlugin;
 
 impl Plugin for MenuPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-        app
-            .add_system_set(
-                SystemSet::on_enter(States::Menu).with_system(setup),
-            )
-            .add_system_set(
-                SystemSet::on_update(States::Menu).with_system(button_system),
-            )
-            .add_system_set(
-                SystemSet::on_exit(States::Menu).with_system(cleanup),
-            );
+        app.add_system_set(
+            SystemSet::on_enter(States::Menu).with_system(setup),
+        )
+        .add_system_set(
+            SystemSet::on_update(States::Menu).with_system(button_system),
+        )
+        .add_system_set(SystemSet::on_exit(States::Menu).with_system(cleanup));
     }
 }
 
@@ -51,9 +48,7 @@ fn setup(mut commands: Commands, assets: Res<LoadedAssets>) {
         });
 }
 
-fn cleanup(mut commands: Commands,
-    q: Query<Entity, With<Node>>,) {
-
+fn cleanup(mut commands: Commands, q: Query<Entity, With<Node>>) {
     for e in q.iter() {
         commands.entity(e).despawn_recursive();
     }
@@ -65,10 +60,10 @@ fn button_system(
         (Changed<Interaction>, With<Button>),
     >,
     mut text_query: Query<&mut Text>,
-    mut app_state: ResMut<State<States>>
+    mut app_state: ResMut<State<States>>,
 ) {
     for (interaction, mut color, children) in &mut interaction_query {
-        let mut text = text_query.get_mut(children[0]).unwrap();
+        let _text = text_query.get_mut(children[0]).unwrap();
         match *interaction {
             Interaction::Clicked => {
                 *color = PRESSED_BUTTON.into();

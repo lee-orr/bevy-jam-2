@@ -1,17 +1,17 @@
-mod player;
-mod spirit;
 mod audio;
 mod loading_state;
-mod states;
 mod menu;
+mod player;
+mod spirit;
+mod states;
 
-use bevy::prelude::*;
-use player::*;
-use spirit::*;
 use audio::*;
-use states::States;
+use bevy::prelude::*;
 use loading_state::*;
 use menu::*;
+use player::*;
+use spirit::*;
+use states::States;
 
 pub const LAUNCHER_TITLE: &str = "Bevy Shell - Template";
 
