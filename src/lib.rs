@@ -1,4 +1,7 @@
+mod player_actions;
+
 use bevy::prelude::*;
+use player_actions::*;
 
 pub const LAUNCHER_TITLE: &str = "Bevy Shell - Template";
 
@@ -11,6 +14,7 @@ pub fn app() -> App {
         ..Default::default()
     })
     .add_plugins(DefaultPlugins)
+    .add_plugin(PlayerPlugin)
     .add_startup_system(load_icon);
     app
 }
@@ -20,5 +24,5 @@ fn load_icon(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn_bundle(SpriteBundle {
         texture: asset_server.load("bevy.png"),
         ..default()
-    });
+    }).insert(PlayerControl);
 }
