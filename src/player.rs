@@ -1,5 +1,7 @@
+use std::f32::consts::PI;
+
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
-use leafwing_input_manager::prelude::*;
+use leafwing_input_manager::{prelude::*, orientation::Orientation};
 
 pub struct PlayerPlugin;
 
@@ -17,21 +19,23 @@ impl Plugin for PlayerPlugin {
 pub enum Action {
     MoveUp,
     MoveDown,
-    MoveLeft,
-    MoveRight,
+    RotateLeft,
+    RotateRight,
 }
 
 #[derive(Component)]
 pub struct PlayerControl;
 
 pub struct PlayerControlSettings {
-    move_speed: f32
+    move_speed: f32,
+    rotate_speed: f32
 }
 
 impl Default for PlayerControlSettings {
     fn default() -> Self {
         Self {
-            move_speed: 100.
+            move_speed: 100.,
+            rotate_speed: 45. * PI / 180.,
         }
     }
 }
@@ -44,7 +48,14 @@ fn spawn_player(mut commands: Commands,
         transform: Transform::default().with_translation(Vec3::new(1.,0.,0.)).with_scale(Vec3::new(50., 50., 50.)),
         material: materials.add(ColorMaterial::from(Color::RED)),
         ..default()
-    }).insert(PlayerControl);
+    }).insert(PlayerControl).with_children(|parent| {
+        parent.spawn_bundle(MaterialMesh2dBundle {
+            mesh: meshes.add(Mesh::from(shape::Circle::default())).into(),
+            transform: Transform::default().with_translation(Vec3::new(0.,0.5,0.)).with_scale(Vec3::new(0.2, 0.2, 0.2)),
+            material: materials.add(ColorMaterial::from(Color::GREEN)),
+            ..default()
+        });
+    });
 }
 
 fn setup_player_control(
@@ -61,12 +72,12 @@ fn setup_player_control(
                 input_map: InputMap::new([
                     (KeyCode::Up, Action::MoveUp),
                     (KeyCode::Down, Action::MoveDown),
-                    (KeyCode::Left, Action::MoveLeft),
-                    (KeyCode::Right, Action::MoveRight),
+                    (KeyCode::Left, Action::RotateLeft),
+                    (KeyCode::Right, Action::RotateRight),
                     (KeyCode::W, Action::MoveUp),
                     (KeyCode::S, Action::MoveDown),
-                    (KeyCode::A, Action::MoveLeft),
-                    (KeyCode::D, Action::MoveRight),
+                    (KeyCode::A, Action::RotateLeft),
+                    (KeyCode::D, Action::RotateRight),
                 ]),
             });
     }
@@ -75,22 +86,25 @@ fn setup_player_control(
 fn move_player(mut query: Query<(&ActionState<Action>, &mut Transform), With<PlayerControl>>, player_settings: Res<PlayerControlSettings>, time: Res<Time>) {
     let delta = time.delta().as_secs_f32();
     let speed = player_settings.move_speed;
+    let rotation_speed = player_settings.rotate_speed;
     for (action, mut transform) in query.iter_mut() {
-        let movement = Vec3::new(if action.pressed(Action::MoveLeft) {
-            -1.
-        } else if action.pressed(Action::MoveRight) {
-            1.
-        } else {
-            0.
-        },
-        if action.pressed(Action::MoveUp) {
-            1.
+        let z_rotation = transform.rotation.to_euler(EulerRot::XYZ).2;
+        if action.pressed(Action::RotateRight) {
+            let z_rotation = z_rotation - rotation_speed * delta;
+            transform.rotation = Quat::from_rotation_z(z_rotation);
+        } else if action.pressed(Action::RotateLeft) {
+            let z_rotation = z_rotation + rotation_speed * delta;
+            transform.rotation = Quat::from_rotation_z(z_rotation);
+        }
+
+        let direction_vector = transform.rotation.mul_vec3(if action.pressed(Action::MoveUp) {
+            Vec3::Y
         } else if action.pressed(Action::MoveDown) {
-            -1.
+            Vec3::NEG_Y
         } else {
-            0.
-        },
-    0.);
-        transform.translation += movement.normalize_or_zero() * delta * speed;
+            Vec3::ZERO
+        });
+
+        transform.translation += direction_vector.normalize_or_zero() * delta * speed;
     }
 }
