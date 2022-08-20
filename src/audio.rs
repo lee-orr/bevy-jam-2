@@ -1,6 +1,6 @@
 use std::f32::consts::PI;
 
-use crate::{states::States, loading_state::LoadedAssets};
+use crate::{loading_state::LoadedAssets, states::States};
 use bevy::{prelude::*, render::render_resource::encase::rts_array::Length};
 use bevy_kira_audio::prelude::*;
 
@@ -12,61 +12,72 @@ impl Plugin for AudioPlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(AudioPlugin)
             .add_system_set(
-                SystemSet::on_enter(States::InGame).with_system(play_loop),
+                SystemSet::on_update(States::InGame).with_system(play_loop),
             )
             .add_system_set(
-                SystemSet::on_update(States::InGame).with_system(play_loop),
+                SystemSet::on_update(States::InGame)
+                    .with_system(adjust_audio_loop_position_and_volume),
             );
     }
 }
 
+#[derive(Component)]
 struct AudioInstanceHandle(Handle<AudioInstance>);
 
 #[derive(Component)]
-pub struct AudioEmitter;
+pub struct AudioEmitter(pub Handle<AudioSource>, pub String);
+
+const AUDIO_RANGE: f32 = 300.;
 
 fn play_loop(
     mut commands: Commands,
     audio: Res<Audio>,
-     assets: Res<LoadedAssets>
+    emitters: Query<(Entity, &AudioEmitter), Without<AudioInstanceHandle>>,
 ) {
-    let handle = audio
-        .play(
-            assets.drums_1.clone(),
-        )
-        .looped()
-        .handle();
-    commands.insert_resource(AudioInstanceHandle(handle));
+    for (entity, emitter) in emitters.iter() {
+        let handle = audio.play(emitter.0.clone()).looped().handle();
+        commands.entity(entity).insert(AudioInstanceHandle(handle));
+    }
 }
 
 fn adjust_audio_loop_position_and_volume(
-    handle: Res<AudioInstanceHandle>,
     mut instances: ResMut<Assets<AudioInstance>>,
-    emitter: Query<&Transform, With<AudioEmitter>>,
+    emitters: Query<(&Transform, &AudioInstanceHandle, &AudioEmitter)>,
     target: Query<&Transform, With<PlayerControl>>,
 ) {
-    let emitter = emitter.get_single();
     let target = target.get_single();
 
-    if let (Some(mut instance), Ok(emitter), Ok(target)) =
-        (instances.get_mut(&handle.0), emitter, target)
-    {
-        let diff = emitter.translation - target.translation;
-        let volume = (1000. - diff.length()) / 1000.;
+    if let Ok(target) = target {
+        for (emitter, handle, emitter_info) in emitters.iter() {
+            if let Some(mut instance) = instances.get_mut(&handle.0) {
+                let diff = emitter.translation - target.translation;
+                let volume = (AUDIO_RANGE - diff.length()) / AUDIO_RANGE;
 
-        let direction = diff.normalize_or_zero();
-        let facing = target.rotation.mul_vec3(Vec3::Y).normalize_or_zero();
+                let direction = diff.normalize_or_zero();
+                let facing =
+                    target.rotation.mul_vec3(Vec3::Y).normalize_or_zero();
 
-        let angle = -1.
-            * Quat::from_rotation_arc(facing, direction)
-                .to_euler(EulerRot::XYZ)
-                .2;
+                let angle = -1.
+                    * Quat::from_rotation_arc(facing, direction)
+                        .to_euler(EulerRot::XYZ)
+                        .2;
 
-        let pan = angle.sin();
-        let volume = volume * 0.8 + volume * 0.2 * (1. - angle.abs() / PI);
-        bevy::log::info!("Angle: {} Volume: {}", angle, volume);
+                let pan = angle.sin();
+                let volume =
+                    volume * 0.9 + volume * 0.1 * (1. - angle.abs() / PI);
+                let volume = volume.clamp(0., 1.);
+                let pan = pan.clamp(-1., 1.);
+                bevy::log::debug!(
+                    "{} - Angle: {} Volume: {}, Pan: {}",
+                    emitter_info.1,
+                    angle,
+                    volume,
+                    pan
+                );
 
-        instance.set_volume(volume.into(), AudioTween::default());
-        instance.set_panning(pan.into(), AudioTween::default());
+                instance.set_volume(volume.into(), AudioTween::default());
+                instance.set_panning(pan.into(), AudioTween::default());
+            }
+        }
     }
 }
