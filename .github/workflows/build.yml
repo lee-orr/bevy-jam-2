@@ -66,6 +66,9 @@ jobs:
         with:
           path: ./launchers/wasm/dist
           key: wasm-${{ hashFiles('Cargo.lock') }}-${{ hashFiles('./src') }}-${{ hashFiles('./launchers') }}
+      - name: Setup Rust Targets
+        if: steps.cache-build.outputs.cache-hit != 'true'
+        run: rustup target add wasm32-unknown-unknown
       - name: Install Trunk
         if: steps.cache-build.outputs.cache-hit != 'true'
         uses: jetli/trunk-action@v0.1.0
