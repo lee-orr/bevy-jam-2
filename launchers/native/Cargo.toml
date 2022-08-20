@@ -6,6 +6,22 @@ workspace = "../.."
 
 [dependencies]
 my-game = { package = "my-game", path = "../.." }
-bevy = "0.8"
 image = "0.24.3"
 winit = "0.26.1"
+
+[dependencies.bevy]
+version = "0.8"
+default-features = false
+# These are the remaining default features other than `bevy_audio` and `vorbis`
+features = [
+  "render",
+  "animation",
+  "bevy_asset",
+  "bevy_scene",
+  "bevy_winit",
+  "bevy_gilrs",
+  "png",
+  "hdr",
+  "filesystem_watcher",
+  "x11"
+]

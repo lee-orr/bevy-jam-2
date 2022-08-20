@@ -1,5 +1,7 @@
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 
+use crate::audio::AudioEmitter;
+
 pub struct SpiritPlugin;
 
 impl Plugin for SpiritPlugin {
@@ -17,5 +19,5 @@ fn spawn_spirit(mut commands: Commands,
         transform: Transform::default().with_translation(Vec3::new(100.,0.,0.)).with_scale(Vec3::new(30., 30., 30.)),
         material: materials.add(ColorMaterial::from(Color::BLUE)),
         ..default()
-    });
+    }).insert(AudioEmitter);
 }

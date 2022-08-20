@@ -1,9 +1,11 @@
 mod player;
 mod spirit;
+mod audio;
 
 use bevy::prelude::*;
 use player::*;
 use spirit::*;
+use audio::*;
 
 pub const LAUNCHER_TITLE: &str = "Bevy Shell - Template";
 
@@ -18,6 +20,7 @@ pub fn app() -> App {
     .add_plugins(DefaultPlugins)
     .add_plugin(PlayerPlugin)
     .add_plugin(SpiritPlugin)
+    .add_plugin(AudioPlayerPlugin)
     .add_startup_system(load_camera);
     app
 }
