@@ -51,6 +51,10 @@ fn setup_player_control(
                     (KeyCode::Down, Action::MoveDown),
                     (KeyCode::Left, Action::MoveLeft),
                     (KeyCode::Right, Action::MoveRight),
+                    (KeyCode::W, Action::MoveUp),
+                    (KeyCode::S, Action::MoveDown),
+                    (KeyCode::A, Action::MoveLeft),
+                    (KeyCode::D, Action::MoveRight),
                 ]),
             });
     }
