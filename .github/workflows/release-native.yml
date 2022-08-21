@@ -77,7 +77,7 @@ jobs:
         uses: KikimoraGames/itch-publish@v0.0.3
         with:
           butlerApiKey: ${{secrets.BUTLER_KEY}}
-          gameData: ./${{ env.RELEASE_NAME }}-${{ needs.setup.outputs.version }}-windows.zip
+          gameData: ./${{ env.RELEASE_NAME }}-${{ needs.setup.outputs.version }}-darwin.zip
           itchUsername: ${{secrets.ITCH_USERNAME}}
           itchGameId: ${{ secrets.ITCH_GAME_ID }}
           buildChannel: "mac"
@@ -115,7 +115,7 @@ jobs:
         uses: KikimoraGames/itch-publish@v0.0.3
         with:
           butlerApiKey: ${{secrets.BUTLER_KEY}}
-          gameData: ./${{ env.RELEASE_NAME }}-${{ needs.setup.outputs.version }}-windows.zip
+          gameData: ./${{ env.RELEASE_NAME }}-${{ needs.setup.outputs.version }}-ubuntu.zip
           itchUsername: ${{secrets.ITCH_USERNAME}}
           itchGameId: ${{ secrets.ITCH_GAME_ID }}
           buildChannel: "linux"
