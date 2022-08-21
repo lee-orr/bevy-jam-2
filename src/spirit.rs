@@ -1,3 +1,5 @@
+use std::f32::consts::PI;
+
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 
 use crate::{
@@ -14,13 +16,20 @@ impl Plugin for SpiritPlugin {
         )
         .add_system_set(
             SystemSet::on_update(States::InGame)
-                .with_system(spirit_random_walk),
+                .with_system(spirit_random_walk)
+                .with_system(spirit_surrounder),
         );
     }
 }
 
 #[derive(Component)]
 pub struct Spirit(Vec3, f32);
+
+#[derive(Component)]
+pub struct SpiritRandomWalker;
+
+#[derive(Component)]
+pub struct SpiritSurrounder(f32, f32);
 
 fn spawn_spirit(
     mut commands: Commands,
@@ -38,6 +47,7 @@ fn spawn_spirit(
             ..default()
         })
         .insert(Spirit(Vec3::ZERO, 120.))
+        .insert(SpiritRandomWalker)
         .insert(AudioEmitter(assets.bass_1.clone(), "Bass".to_owned()));
     commands
         .spawn_bundle(MaterialMesh2dBundle {
@@ -48,6 +58,7 @@ fn spawn_spirit(
             material: materials.add(ColorMaterial::from(Color::BLUE)),
             ..default()
         })
+        .insert(SpiritRandomWalker)
         .insert(Spirit(Vec3::ZERO, 100.));
     commands
         .spawn_bundle(MaterialMesh2dBundle {
@@ -68,13 +79,18 @@ fn spawn_spirit(
             material: materials.add(ColorMaterial::from(Color::BLUE)),
             ..default()
         })
-        .insert(Spirit(Vec3::ZERO, 95.));
+        .insert(Spirit(Vec3::ZERO, 95.))
+        .insert(SpiritSurrounder(10. * PI / 180., 120.));
 }
 
 fn spirit_random_walk(
     mut spirits: Query<
         (&mut Transform, &mut Spirit),
-        (Without<Collecting>, Without<PlayerControl>),
+        (
+            With<SpiritRandomWalker>,
+            Without<Collecting>,
+            Without<PlayerControl>,
+        ),
     >,
     players: Query<&Transform, With<PlayerControl>>,
     time: Res<Time>,
@@ -99,13 +115,65 @@ fn spirit_random_walk(
         let direction = spirit.translation - player_position;
         let direction = direction.normalize();
 
-        velocity.0 += direction * delta * delta * speed;
+        velocity.0 += direction * delta * speed;
 
         if velocity.0.length() > velocity.1 {
             velocity.0 = velocity.0.normalize() * (velocity.1 - 1.);
         }
 
-        spirit.translation += velocity.0 * delta * speed;
+        spirit.translation += velocity.0 * delta;
+
+        if spirit.translation.x.abs() > bounds.0 {
+            velocity.0.x = -1. * velocity.0.x;
+        }
+        if spirit.translation.y.abs() > bounds.1 {
+            velocity.0.y = -1. * velocity.0.y;
+        }
+    }
+}
+
+fn spirit_surrounder(
+    mut spirits: Query<
+        (&mut Transform, &mut Spirit, &SpiritSurrounder),
+        (Without<Collecting>, Without<PlayerControl>),
+    >,
+    players: Query<&Transform, With<PlayerControl>>,
+    time: Res<Time>,
+    window: Res<Windows>,
+) {
+    let target = players.get_single();
+    let speed = 95f32;
+    let delta = time.delta().as_secs_f32();
+    let elapsed = time.time_since_startup().as_secs_f32();
+    let bounds = if let Some(window) = window.get_primary() {
+        (window.width() / 2., window.height() / 2.)
+    } else {
+        (500., 500.)
+    };
+
+    let player_position = if let Ok(player) = target {
+        player.translation
+    } else {
+        Vec3::ZERO
+    };
+
+    for (mut spirit, mut velocity, SpiritSurrounder(angle, target_distance)) in
+        spirits.iter_mut()
+    {
+        let target_position = player_position
+            + *target_distance
+                * (Quat::from_rotation_z(angle * elapsed).mul_vec3(Vec3::Y));
+
+        let direction = target_position - spirit.translation;
+        let direction = direction.normalize();
+
+        velocity.0 += direction * delta * speed;
+
+        if velocity.0.length() > velocity.1 {
+            velocity.0 = velocity.0.normalize() * (velocity.1 - 1.);
+        }
+
+        spirit.translation += velocity.0 * delta;
 
         if spirit.translation.x.abs() > bounds.0 {
             velocity.0.x = -1. * velocity.0.x;
