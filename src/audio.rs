@@ -85,7 +85,7 @@ fn adjust_audio_loop_position_and_volume(
 
 fn cleanup_collected_audio(
     mut instances: ResMut<Assets<AudioInstance>>,
-    emitters: Query<(&AudioInstanceHandle), With<Collected>>,
+    emitters: Query<&AudioInstanceHandle, With<Collected>>,
 ) {
     for handle in emitters.iter() {
         if let Some(instance) = instances.get_mut(&handle.0) {

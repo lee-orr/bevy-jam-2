@@ -66,7 +66,7 @@ pub fn collecting_spirits(
                     .remove::<Collecting>()
                     .insert(Collected);
             } else {
-                spirit.translation = spirit.translation + distance / 10.;
+                spirit.translation += distance / 10.;
             }
         }
     }
