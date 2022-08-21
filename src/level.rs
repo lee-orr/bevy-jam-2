@@ -13,6 +13,9 @@ impl Plugin for LevelPlugin {
             .insert_resource(LevelSelection::Identifier("Level_0".into()))
             .add_system_set(
                 SystemSet::on_enter(States::InGame).with_system(start_level),
+            )
+            .add_system_set(
+                SystemSet::on_update(States::InGame).with_system(current_tiles)
             );
     }
 }
@@ -27,6 +30,6 @@ fn start_level(mut commands: Commands, assets: Res<LoadedAssets>) {
     .insert_resource(LevelSelection::Identifier("Level_0".into()));
 }
 
-// fn current_tiles(tiles: Query<&TilePos>) {
-//     bevy::log::info!("We have {} tiles!", tiles.iter().len());
-// }
+fn current_tiles(tiles: Query<&Sprite>) {
+    //bevy::log::info!("We have {} tiles!", tiles.iter().len());
+}

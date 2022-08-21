@@ -1,6 +1,7 @@
 use std::f32::consts::PI;
 
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
+use bevy_ecs_ldtk::EntityInstance;
 use leafwing_input_manager::prelude::*;
 
 use crate::states::States;
@@ -12,12 +13,10 @@ impl Plugin for PlayerPlugin {
         app.add_plugin(InputManagerPlugin::<Action>::default())
             .init_resource::<PlayerControlSettings>()
             .add_system_set(
-                SystemSet::on_enter(States::InGame).with_system(spawn_player),
-            )
-            .add_system_set(
                 SystemSet::on_update(States::InGame)
                     .with_system(setup_player_control)
-                    .with_system(move_player),
+                    .with_system(move_player)
+                    .with_system(spawn_player),
             );
     }
 }
@@ -52,27 +51,31 @@ fn spawn_player(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
+    entities: Query<(&EntityInstance, &Transform), Added<EntityInstance>>
 ) {
-    commands
-        .spawn_bundle(MaterialMesh2dBundle {
-            mesh: meshes.add(Mesh::from(shape::Circle::default())).into(),
-            transform: Transform::default()
-                .with_translation(Vec3::new(1., 0., 0.))
-                .with_scale(Vec3::new(50., 50., 50.)),
-            material: materials.add(ColorMaterial::from(Color::RED)),
-            ..default()
-        })
-        .insert(PlayerControl)
-        .with_children(|parent| {
-            parent.spawn_bundle(MaterialMesh2dBundle {
-                mesh: meshes.add(Mesh::from(shape::Circle::default())).into(),
-                transform: Transform::default()
-                    .with_translation(Vec3::new(0., 0.5, 0.))
-                    .with_scale(Vec3::new(0.2, 0.2, 0.2)),
-                material: materials.add(ColorMaterial::from(Color::GREEN)),
-                ..default()
-            });
-        });
+    for (instance, transform) in entities.iter() {
+        if instance.identifier == "Player" {
+            commands
+                .spawn_bundle(MaterialMesh2dBundle {
+                    mesh: meshes.add(Mesh::from(shape::Circle::default())).into(),
+                    transform: transform
+                        .with_scale(Vec3::new(50., 50., 50.)),
+                    material: materials.add(ColorMaterial::from(Color::RED)),
+                    ..default()
+                })
+                .insert(PlayerControl)
+                .with_children(|parent| {
+                    parent.spawn_bundle(MaterialMesh2dBundle {
+                        mesh: meshes.add(Mesh::from(shape::Circle::default())).into(),
+                        transform: Transform::default()
+                            .with_translation(Vec3::new(0., 0.5, 0.))
+                            .with_scale(Vec3::new(0.2, 0.2, 0.2)),
+                        material: materials.add(ColorMaterial::from(Color::GREEN)),
+                        ..default()
+                    });
+                });
+            }
+    }
 }
 
 fn setup_player_control(
