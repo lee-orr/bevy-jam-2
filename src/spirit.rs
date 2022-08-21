@@ -1,7 +1,7 @@
 use std::f32::consts::PI;
 
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
-use bevy_ecs_ldtk::{LdtkEntity, EntityInstance, prelude::FieldValue};
+use bevy_ecs_ldtk::{prelude::FieldValue, EntityInstance, LdtkEntity};
 use bevy_kira_audio::{Audio, AudioSource};
 
 use crate::{
@@ -13,13 +13,12 @@ pub struct SpiritPlugin;
 
 impl Plugin for SpiritPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_system_set(
-                SystemSet::on_update(States::InGame)
-                    .with_system(spirit_random_walk)
-                    .with_system(spirit_surrounder)
-                    .with_system(spawn_spirit),
-            );
+        app.add_system_set(
+            SystemSet::on_update(States::InGame)
+                .with_system(spirit_random_walk)
+                .with_system(spirit_surrounder)
+                .with_system(spawn_spirit),
+        );
     }
 }
 
@@ -32,22 +31,19 @@ pub struct SpiritRandomWalker;
 #[derive(Component)]
 pub struct SpiritSurrounder(f32, f32);
 
-
 fn spawn_spirit(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     assets: Res<LoadedAssets>,
     asset_server: Res<AssetServer>,
-    entities: Query<(&EntityInstance, &Transform), Added<EntityInstance>>
+    entities: Query<(&EntityInstance, &Transform), Added<EntityInstance>>,
 ) {
     for (instance, transform) in entities.iter() {
         let spawning = match instance.identifier.as_str() {
             "RandomWalkSpirit" => {
-               Some(commands
-                    .spawn()
-                    .insert(SpiritRandomWalker).id())
-            },
+                Some(commands.spawn().insert(SpiritRandomWalker).id())
+            }
             "CirclingSpirit" => {
                 let mut angle = 10f32;
                 let mut distance = 120f32;
@@ -55,28 +51,32 @@ fn spawn_spirit(
                 for field in instance.field_instances.iter() {
                     match field.identifier.as_str() {
                         "AngularSpeed" => {
-                            if let FieldValue::Float(Some(speed)) = field.value {
+                            if let FieldValue::Float(Some(speed)) = field.value
+                            {
                                 angle = speed;
                             }
-                        },
+                        }
                         "TargetDistance" => {
                             if let FieldValue::Float(Some(d)) = field.value {
                                 distance = d;
                             }
-                        },
+                        }
                         _ => {}
                     }
                 }
 
-                Some(commands
-                    .spawn()
-                    .insert(SpiritSurrounder(angle * PI / 180., distance)).id())
-            },
-            _ => None
+                Some(
+                    commands
+                        .spawn()
+                        .insert(SpiritSurrounder(angle * PI / 180., distance))
+                        .id(),
+                )
+            }
+            _ => None,
         };
         if let Some(entity) = spawning {
             let mut spawning = commands.entity(entity);
-            let (max_speed, audio, color) =  {
+            let (max_speed, audio, color) = {
                 let mut max_speed = 95f32;
                 let mut audio = None;
                 let mut color = Color::WHITE;
@@ -84,21 +84,25 @@ fn spawn_spirit(
                 for field in instance.field_instances.iter() {
                     match field.identifier.as_str() {
                         "MaxSpeed" => {
-                            if let FieldValue::Float(Some(speed)) = field.value {
+                            if let FieldValue::Float(Some(speed)) = field.value
+                            {
                                 max_speed = speed;
                             }
-                        },
+                        }
                         "Audio" => {
-                            if let FieldValue::String(Some(audio_file)) = &field.value {
-                                let handle: Handle<AudioSource> = asset_server.load(&audio_file.clone());
+                            if let FieldValue::String(Some(audio_file)) =
+                                &field.value
+                            {
+                                let handle: Handle<AudioSource> =
+                                    asset_server.load(&audio_file.clone());
                                 audio = Some((handle, audio_file.clone()));
                             }
-                        },
+                        }
                         "Color" => {
                             if let FieldValue::Color(c) = field.value {
                                 color = c;
                             }
-                        },
+                        }
                         _ => {}
                     }
                 }
@@ -106,15 +110,17 @@ fn spawn_spirit(
                 (max_speed, audio, color)
             };
 
-            spawning.insert_bundle(MaterialMesh2dBundle {
-                        mesh: meshes.add(Mesh::from(shape::Circle::default())).into(),
-                        material: materials.add(ColorMaterial::from(color)),
-                        transform: transform.with_scale(Vec3::ONE * 30.),
-                        ..default()
-                    })
-                    .insert(Spirit(Vec3::ZERO, max_speed));
-            
-            
+            spawning
+                .insert_bundle(MaterialMesh2dBundle {
+                    mesh: meshes
+                        .add(Mesh::from(shape::Circle::default()))
+                        .into(),
+                    material: materials.add(ColorMaterial::from(color)),
+                    transform: transform.with_scale(Vec3::ONE * 30.),
+                    ..default()
+                })
+                .insert(Spirit(Vec3::ZERO, max_speed));
+
             if let Some((audio, file)) = audio {
                 spawning.insert(AudioEmitter(audio, file));
             }

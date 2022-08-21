@@ -51,30 +51,34 @@ fn spawn_player(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    entities: Query<(&EntityInstance, &Transform), Added<EntityInstance>>
+    entities: Query<(&EntityInstance, &Transform), Added<EntityInstance>>,
 ) {
     for (instance, transform) in entities.iter() {
         if instance.identifier == "Player" {
             commands
                 .spawn_bundle(MaterialMesh2dBundle {
-                    mesh: meshes.add(Mesh::from(shape::Circle::default())).into(),
-                    transform: transform
-                        .with_scale(Vec3::new(50., 50., 50.)),
+                    mesh: meshes
+                        .add(Mesh::from(shape::Circle::default()))
+                        .into(),
+                    transform: transform.with_scale(Vec3::new(50., 50., 50.)),
                     material: materials.add(ColorMaterial::from(Color::RED)),
                     ..default()
                 })
                 .insert(PlayerControl)
                 .with_children(|parent| {
                     parent.spawn_bundle(MaterialMesh2dBundle {
-                        mesh: meshes.add(Mesh::from(shape::Circle::default())).into(),
+                        mesh: meshes
+                            .add(Mesh::from(shape::Circle::default()))
+                            .into(),
                         transform: Transform::default()
                             .with_translation(Vec3::new(0., 0.5, 0.))
                             .with_scale(Vec3::new(0.2, 0.2, 0.2)),
-                        material: materials.add(ColorMaterial::from(Color::GREEN)),
+                        material: materials
+                            .add(ColorMaterial::from(Color::GREEN)),
                         ..default()
                     });
                 });
-            }
+        }
     }
 }
 
@@ -88,7 +92,8 @@ fn setup_player_control(
             .insert_bundle(InputManagerBundle::<Action> {
                 // Stores "which actions are currently pressed"
                 action_state: ActionState::default(),
-                // Describes how to convert from player inputs into those actions
+                // Describes how to convert from player inputs into those
+                // actions
                 input_map: InputMap::new([
                     (KeyCode::Up, Action::MoveUp),
                     (KeyCode::Down, Action::MoveDown),

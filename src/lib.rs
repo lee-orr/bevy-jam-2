@@ -1,22 +1,22 @@
 mod audio;
+mod level;
 mod loading_state;
 mod menu;
 mod player;
 mod spirit;
 mod spirit_collection;
 mod states;
-mod level;
 
 use audio::*;
 use bevy::prelude::*;
+use bevy_inspector_egui::WorldInspectorPlugin;
+use level::*;
 use loading_state::*;
 use menu::*;
 use player::*;
 use spirit::*;
 use spirit_collection::*;
 use states::States;
-use level::*;
-use bevy_inspector_egui::WorldInspectorPlugin;
 
 pub const LAUNCHER_TITLE: &str = "Memory Mixer";
 
