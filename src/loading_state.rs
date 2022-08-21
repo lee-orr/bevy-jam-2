@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
 use bevy_kira_audio::AudioSource;
+use bevy_ecs_ldtk::prelude::*;
 
 use crate::states::States;
 
@@ -20,6 +21,9 @@ impl Plugin for LoadingPlugin {
 pub struct LoadedAssets {
     #[asset(path = "MotionPicture_PersonalUseOnly.ttf")]
     pub font: Handle<Font>,
+    
+    #[asset(path = "level-test.ldtk")]
+    pub test_level: Handle<LdtkAsset>,
 
     #[asset(path = "bevy jam song - 0002 - Instrument - Drums1.ogg")]
     pub drums_1: Handle<AudioSource>,
