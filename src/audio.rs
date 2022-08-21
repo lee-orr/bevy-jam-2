@@ -1,6 +1,6 @@
 use std::f32::consts::PI;
 
-use crate::states::States;
+use crate::{spirit_collection::Collected, states::States};
 use bevy::prelude::*;
 use bevy_kira_audio::prelude::*;
 
@@ -16,7 +16,8 @@ impl Plugin for AudioPlayerPlugin {
             )
             .add_system_set(
                 SystemSet::on_update(States::InGame)
-                    .with_system(adjust_audio_loop_position_and_volume),
+                    .with_system(adjust_audio_loop_position_and_volume)
+                    .with_system(cleanup_collected_audio),
             );
     }
 }
@@ -79,5 +80,17 @@ fn adjust_audio_loop_position_and_volume(
                 instance.set_panning(pan.into(), AudioTween::default());
             }
         }
+    }
+}
+
+fn cleanup_collected_audio(
+    mut instances: ResMut<Assets<AudioInstance>>,
+    emitters: Query<(&AudioInstanceHandle), With<Collected>>,
+) {
+    for handle in emitters.iter() {
+        if let Some(instance) = instances.get_mut(&handle.0) {
+            instance.stop(AudioTween::default());
+        }
+        instances.remove(&handle.0);
     }
 }

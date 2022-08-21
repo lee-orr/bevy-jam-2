@@ -3,6 +3,7 @@ mod loading_state;
 mod menu;
 mod player;
 mod spirit;
+mod spirit_collection;
 mod states;
 
 use audio::*;
@@ -11,6 +12,7 @@ use loading_state::*;
 use menu::*;
 use player::*;
 use spirit::*;
+use spirit_collection::*;
 use states::States;
 
 pub const LAUNCHER_TITLE: &str = "Bevy Shell - Template";
@@ -30,6 +32,7 @@ pub fn app() -> App {
     .add_plugin(PlayerPlugin)
     .add_plugin(SpiritPlugin)
     .add_plugin(AudioPlayerPlugin)
+    .add_plugin(SpiritCollection)
     .add_startup_system(load_camera);
     app
 }

@@ -12,6 +12,9 @@ impl Plugin for SpiritPlugin {
     }
 }
 
+#[derive(Component)]
+pub struct Spirit;
+
 fn spawn_spirit(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -27,6 +30,7 @@ fn spawn_spirit(
             material: materials.add(ColorMaterial::from(Color::BLUE)),
             ..default()
         })
+        .insert(Spirit)
         .insert(AudioEmitter(assets.bass_1.clone(), "Bass".to_owned()));
     commands
         .spawn_bundle(MaterialMesh2dBundle {
@@ -37,6 +41,7 @@ fn spawn_spirit(
             material: materials.add(ColorMaterial::from(Color::PURPLE)),
             ..default()
         })
+        .insert(Spirit)
         .insert(AudioEmitter(assets.piano.clone(), "Piano".to_owned()));
     commands
         .spawn_bundle(MaterialMesh2dBundle {
@@ -47,5 +52,6 @@ fn spawn_spirit(
             material: materials.add(ColorMaterial::from(Color::ORANGE)),
             ..default()
         })
+        .insert(Spirit)
         .insert(AudioEmitter(assets.drums_2.clone(), "Drums".to_owned()));
 }

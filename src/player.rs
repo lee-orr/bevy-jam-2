@@ -1,7 +1,7 @@
 use std::f32::consts::PI;
 
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
-use leafwing_input_manager::{prelude::*};
+use leafwing_input_manager::prelude::*;
 
 use crate::states::States;
 
@@ -28,6 +28,7 @@ pub enum Action {
     MoveDown,
     RotateLeft,
     RotateRight,
+    Collect,
 }
 
 #[derive(Component)]
@@ -94,6 +95,8 @@ fn setup_player_control(
                     (KeyCode::S, Action::MoveDown),
                     (KeyCode::A, Action::RotateLeft),
                     (KeyCode::D, Action::RotateRight),
+                    (KeyCode::Return, Action::Collect),
+                    (KeyCode::Space, Action::Collect),
                 ]),
             });
     }
