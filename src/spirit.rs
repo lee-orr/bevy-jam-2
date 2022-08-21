@@ -20,7 +20,7 @@ impl Plugin for SpiritPlugin {
 }
 
 #[derive(Component)]
-pub struct Spirit(Vec3);
+pub struct Spirit(Vec3, f32);
 
 fn spawn_spirit(
     mut commands: Commands,
@@ -37,7 +37,7 @@ fn spawn_spirit(
             material: materials.add(ColorMaterial::from(Color::BLUE)),
             ..default()
         })
-        .insert(Spirit(Vec3::ZERO))
+        .insert(Spirit(Vec3::ZERO, 120.))
         .insert(AudioEmitter(assets.bass_1.clone(), "Bass".to_owned()));
     commands
         .spawn_bundle(MaterialMesh2dBundle {
@@ -48,7 +48,7 @@ fn spawn_spirit(
             material: materials.add(ColorMaterial::from(Color::BLUE)),
             ..default()
         })
-        .insert(Spirit(Vec3::ZERO));
+        .insert(Spirit(Vec3::ZERO, 100.));
     commands
         .spawn_bundle(MaterialMesh2dBundle {
             mesh: meshes.add(Mesh::from(shape::Circle::default())).into(),
@@ -58,7 +58,7 @@ fn spawn_spirit(
             material: materials.add(ColorMaterial::from(Color::BLUE)),
             ..default()
         })
-        .insert(Spirit(Vec3::ZERO));
+        .insert(Spirit(Vec3::ZERO, 140.));
     commands
         .spawn_bundle(MaterialMesh2dBundle {
             mesh: meshes.add(Mesh::from(shape::Circle::default())).into(),
@@ -68,7 +68,7 @@ fn spawn_spirit(
             material: materials.add(ColorMaterial::from(Color::BLUE)),
             ..default()
         })
-        .insert(Spirit(Vec3::ZERO));
+        .insert(Spirit(Vec3::ZERO, 95.));
 }
 
 fn spirit_random_walk(
@@ -101,8 +101,8 @@ fn spirit_random_walk(
 
         velocity.0 += direction * delta * delta * speed;
 
-        if velocity.0.length() > 100. {
-            velocity.0 = velocity.0.normalize() * 99.;
+        if velocity.0.length() > velocity.1 {
+            velocity.0 = velocity.0.normalize() * (velocity.1 - 1.);
         }
 
         spirit.translation += velocity.0 * delta * speed;
