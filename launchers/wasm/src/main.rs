@@ -35,6 +35,16 @@ fn view() -> Html {
     set_window_title(LAUNCHER_TITLE);
     set_global_css();
 
+    let loading = use_state(|| false);
+    let onclick = {
+        let loading = loading.clone();
+        Callback::from(move |_| {
+            loading.set(true);
+            start_bevy();
+        })
+    };
+
+
     let css = css!(
         r#"
         position: absolute;
@@ -46,16 +56,23 @@ fn view() -> Html {
 
     html! {
         <div class={ css }>
+        if *loading {
             <canvas id="bevy"></canvas>
+        } else {
+            <button {onclick}>{"Start Game"}</button>
+        }
         </div>
     }
+}
+
+fn start_bevy() {
+    // Start the Bevy App
+    let mut app = my_game::app();
+    info!("Starting launcher: WASM");
+    app.run();
 }
 
 fn main() {
     // Mount the DOM
     yew::start_app::<Root>();
-    // Start the Bevy App
-    let mut app = my_game::app();
-    info!("Starting launcher: WASM");
-    app.run();
 }
