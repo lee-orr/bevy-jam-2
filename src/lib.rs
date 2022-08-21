@@ -6,6 +6,7 @@ mod player;
 mod spirit;
 mod spirit_collection;
 mod states;
+mod camera;
 
 use audio::*;
 use bevy::prelude::*;
@@ -17,6 +18,7 @@ use player::*;
 use spirit::*;
 use spirit_collection::*;
 use states::States;
+use camera::*;
 
 pub const LAUNCHER_TITLE: &str = "Memory Mixer";
 
@@ -37,11 +39,8 @@ pub fn app() -> App {
     .add_plugin(SpiritPlugin)
     .add_plugin(AudioPlayerPlugin)
     .add_plugin(SpiritCollection)
-    .add_plugin(WorldInspectorPlugin::new())
-    .add_startup_system(load_camera);
+    .add_plugin(CameraPlugin)
+    .add_plugin(WorldInspectorPlugin::new());
     app
 }
 
-fn load_camera(mut commands: Commands) {
-    commands.spawn_bundle(Camera2dBundle::default());
-}

@@ -77,7 +77,7 @@ fn spawn_spirit(
         if let Some(entity) = spawning {
             let mut spawning = commands.entity(entity);
             let (max_speed, audio, color) = {
-                let mut max_speed = 95f32;
+                let mut max_speed = 9.5f32;
                 let mut audio = None;
                 let mut color = Color::WHITE;
 
@@ -116,7 +116,7 @@ fn spawn_spirit(
                         .add(Mesh::from(shape::Circle::default()))
                         .into(),
                     material: materials.add(ColorMaterial::from(color)),
-                    transform: transform.with_scale(Vec3::ONE * 30.),
+                    transform: transform.with_scale(Vec3::ONE * 3.),
                     ..default()
                 })
                 .insert(Spirit(Vec3::ZERO, max_speed));

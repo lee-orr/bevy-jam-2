@@ -28,7 +28,7 @@ struct AudioInstanceHandle(Handle<AudioInstance>);
 #[derive(Component)]
 pub struct AudioEmitter(pub Handle<AudioSource>, pub String);
 
-const AUDIO_RANGE: f32 = 500.;
+const AUDIO_RANGE: f32 = 50.;
 
 fn play_loop(
     mut commands: Commands,
@@ -68,7 +68,7 @@ fn adjust_audio_loop_position_and_volume(
                     volume * 0.9 + volume * 0.1 * (1. - angle.abs() / PI);
                 let volume = volume.clamp(0., 1.);
                 let pan = pan.clamp(0., 1.);
-                bevy::log::info!(
+                bevy::log::debug!(
                     "{} - Angle: {} Volume: {}, Pan: {}",
                     emitter_info.1,
                     angle,

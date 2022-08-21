@@ -39,7 +39,7 @@ pub fn collect_nearby_spirits(
     if let Ok((action_state, player)) = target {
         if action_state.just_pressed(Action::Collect) {
             for (entity, spirit) in spirits.iter() {
-                if (spirit.translation - player.translation).length() < 100. {
+                if (spirit.translation - player.translation).length() < 10. {
                     commands.entity(entity).insert(Collecting);
                 }
             }
@@ -60,7 +60,7 @@ pub fn collecting_spirits(
     if let Ok(player) = target {
         for (entity, mut spirit) in spirits.iter_mut() {
             let distance = player.translation - spirit.translation;
-            if distance.length() < 10. {
+            if distance.length() < 0.1 {
                 commands
                     .entity(entity)
                     .remove::<Collecting>()

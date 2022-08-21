@@ -1,7 +1,8 @@
 use std::f32::consts::PI;
 
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
-use bevy_ecs_ldtk::EntityInstance;
+use bevy_ecs_ldtk::{EntityInstance, prelude::FieldValue};
+use bevy_inspector_egui::{Inspectable, RegisterInspectable};
 use leafwing_input_manager::prelude::*;
 
 use crate::states::States;
@@ -11,13 +12,13 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(InputManagerPlugin::<Action>::default())
-            .init_resource::<PlayerControlSettings>()
             .add_system_set(
                 SystemSet::on_update(States::InGame)
                     .with_system(setup_player_control)
                     .with_system(move_player)
                     .with_system(spawn_player),
-            );
+            )
+            .register_type::<PlayerControl>();
     }
 }
 
@@ -30,18 +31,17 @@ pub enum Action {
     Collect,
 }
 
-#[derive(Component)]
-pub struct PlayerControl;
-
-pub struct PlayerControlSettings {
+#[derive(Component, Reflect)]
+#[reflect(Component)]
+pub struct PlayerControl {
     move_speed: f32,
     rotate_speed: f32,
 }
 
-impl Default for PlayerControlSettings {
+impl Default for PlayerControl {
     fn default() -> Self {
         Self {
-            move_speed: 100.,
+            move_speed: 10.,
             rotate_speed: 45. * PI / 180.,
         }
     }
@@ -55,16 +55,42 @@ fn spawn_player(
 ) {
     for (instance, transform) in entities.iter() {
         if instance.identifier == "Player" {
+            let (move_speed, rotate_speed) = {
+                let mut move_speed = 10f32;
+                let mut rotate_speed = 10f32;
+    
+                for field in instance.field_instances.iter() {
+                    bevy::log::info!("Field ID: {}, Value: {:?}", &field.identifier, &field.value);
+                    match field.identifier.as_str() {
+                        "MoveSpeed" => {
+                            if let FieldValue::Float(Some(speed)) = field.value
+                            {
+                                move_speed = speed;
+                            }
+                        }
+                        "RotateSpeed" => {
+                            if let FieldValue::Float(Some(speed)) = field.value
+                            {
+                                rotate_speed = speed;
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+    
+                (move_speed, rotate_speed * PI / 180.)
+            };
+    
             commands
                 .spawn_bundle(MaterialMesh2dBundle {
                     mesh: meshes
                         .add(Mesh::from(shape::Circle::default()))
                         .into(),
-                    transform: transform.with_scale(Vec3::new(50., 50., 50.)),
+                    transform: transform.with_scale(Vec3::new(5., 5., 5.)),
                     material: materials.add(ColorMaterial::from(Color::RED)),
                     ..default()
                 })
-                .insert(PlayerControl)
+                .insert(PlayerControl {move_speed, rotate_speed})
                 .with_children(|parent| {
                     parent.spawn_bundle(MaterialMesh2dBundle {
                         mesh: meshes
@@ -112,22 +138,20 @@ fn setup_player_control(
 
 fn move_player(
     mut query: Query<
-        (&ActionState<Action>, &mut Transform),
+        (&ActionState<Action>, &mut Transform, &PlayerControl),
         With<PlayerControl>,
     >,
-    player_settings: Res<PlayerControlSettings>,
     time: Res<Time>,
 ) {
     let delta = time.delta().as_secs_f32();
-    let speed = player_settings.move_speed;
-    let rotation_speed = player_settings.rotate_speed;
-    for (action, mut transform) in query.iter_mut() {
+
+    for (action, mut transform, PlayerControl{move_speed, rotate_speed}) in query.iter_mut() {
         let z_rotation = transform.rotation.to_euler(EulerRot::XYZ).2;
         if action.pressed(Action::RotateRight) {
-            let z_rotation = z_rotation - rotation_speed * delta;
+            let z_rotation = z_rotation - *rotate_speed * delta;
             transform.rotation = Quat::from_rotation_z(z_rotation);
         } else if action.pressed(Action::RotateLeft) {
-            let z_rotation = z_rotation + rotation_speed * delta;
+            let z_rotation = z_rotation + *rotate_speed * delta;
             transform.rotation = Quat::from_rotation_z(z_rotation);
         }
 
@@ -143,6 +167,6 @@ fn move_player(
                 });
 
         transform.translation +=
-            direction_vector.normalize_or_zero() * delta * speed;
+            direction_vector.normalize_or_zero() * delta * *move_speed;
     }
 }
