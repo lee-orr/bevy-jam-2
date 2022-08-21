@@ -63,11 +63,11 @@ fn adjust_audio_loop_position_and_volume(
                         .to_euler(EulerRot::XYZ)
                         .2;
 
-                let pan = angle.sin();
+                let pan = (angle.sin() + 1.) / 2.;
                 let volume =
                     volume * 0.9 + volume * 0.1 * (1. - angle.abs() / PI);
                 let volume = volume.clamp(0., 1.);
-                let pan = pan.clamp(-1., 1.);
+                let pan = pan.clamp(0., 1.);
                 bevy::log::info!(
                     "{} - Angle: {} Volume: {}, Pan: {}",
                     emitter_info.1,
