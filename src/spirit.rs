@@ -80,7 +80,7 @@ fn spawn_spirit(
             ..default()
         })
         .insert(Spirit(Vec3::ZERO, 95.))
-        .insert(SpiritSurrounder(10. * PI / 180., 120.));
+        .insert(SpiritSurrounder(10. * PI / 180., 250.));
 }
 
 fn spirit_random_walk(
