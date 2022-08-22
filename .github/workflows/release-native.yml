@@ -38,14 +38,6 @@ jobs:
           files: assets/ ./${{ env.RELEASE_NAME }}.exe
           recursive: false
           dest: ./${{ env.RELEASE_NAME }}-${{ needs.setup.outputs.version }}-windows.zip
-      - name: Itch.io
-        uses: KikimoraGames/itch-publish@v0.0.3
-        with:
-          butlerApiKey: ${{secrets.BUTLER_KEY}}
-          gameData: ./${{ env.RELEASE_NAME }}-${{ needs.setup.outputs.version }}-windows.zip
-          itchUsername: ${{secrets.ITCH_USERNAME}}
-          itchGameId: ${{ secrets.ITCH_GAME_ID }}
-          buildChannel: "windows"
       - name: Upload
         uses: softprops/action-gh-release@v1
         with:
@@ -73,14 +65,6 @@ jobs:
           files: assets/ ./${{ env.RELEASE_NAME }}
           recursive: false
           dest: ./${{ env.RELEASE_NAME }}-${{ needs.setup.outputs.version }}-darwin.zip
-      - name: Itch.io
-        uses: KikimoraGames/itch-publish@v0.0.3
-        with:
-          butlerApiKey: ${{secrets.BUTLER_KEY}}
-          gameData: ./${{ env.RELEASE_NAME }}-${{ needs.setup.outputs.version }}-darwin.zip
-          itchUsername: ${{secrets.ITCH_USERNAME}}
-          itchGameId: ${{ secrets.ITCH_GAME_ID }}
-          buildChannel: "mac"
       - name: Upload
         uses: softprops/action-gh-release@v1
         with:
@@ -111,6 +95,7 @@ jobs:
           files: assets/ ./${{ env.RELEASE_NAME }}
           recursive: false
           dest: ./${{ env.RELEASE_NAME }}-${{ needs.setup.outputs.version }}-ubuntu.zip
+          
       - name: Itch.io
         uses: KikimoraGames/itch-publish@v0.0.3
         with:
@@ -126,3 +111,19 @@ jobs:
           prerelease: false
           fail_on_unmatched_files: true
           files: ./${{ env.RELEASE_NAME }}-${{ needs.setup.outputs.version }}-ubuntu.zip
+      - name: Itch.io
+        uses: KikimoraGames/itch-publish@v0.0.3
+        with:
+          butlerApiKey: ${{secrets.BUTLER_KEY}}
+          gameData: ./${{ env.RELEASE_NAME }}-${{ needs.setup.outputs.version }}-windows.zip
+          itchUsername: ${{secrets.ITCH_USERNAME}}
+          itchGameId: ${{ secrets.ITCH_GAME_ID }}
+          buildChannel: "windows"
+      - name: Itch.io
+        uses: KikimoraGames/itch-publish@v0.0.3
+        with:
+          butlerApiKey: ${{secrets.BUTLER_KEY}}
+          gameData: ./${{ env.RELEASE_NAME }}-${{ needs.setup.outputs.version }}-darwin.zip
+          itchUsername: ${{secrets.ITCH_USERNAME}}
+          itchGameId: ${{ secrets.ITCH_GAME_ID }}
+          buildChannel: "mac"
