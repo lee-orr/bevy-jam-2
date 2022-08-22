@@ -4,6 +4,7 @@ use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 use bevy_ecs_ldtk::{EntityInstance, prelude::FieldValue};
 use bevy_inspector_egui::{Inspectable, RegisterInspectable};
 use leafwing_input_manager::prelude::*;
+use heron::prelude::*;
 
 use crate::states::States;
 
@@ -103,7 +104,11 @@ fn spawn_player(
                             .add(ColorMaterial::from(Color::GREEN)),
                         ..default()
                     });
-                });
+                })
+                .insert(RigidBody::Dynamic)
+                .insert(CollisionShape::Sphere { radius: 3.})
+                .insert(PhysicMaterial { restitution: 0.9, friction: 0.1, density: 10.0, ..Default::default() })
+                .insert(Velocity::from_linear(Vec3::ZERO));
         }
     }
 }
@@ -138,22 +143,21 @@ fn setup_player_control(
 
 fn move_player(
     mut query: Query<
-        (&ActionState<Action>, &mut Transform, &PlayerControl),
+        (&ActionState<Action>, &Transform, &PlayerControl, &mut Velocity),
         With<PlayerControl>,
     >,
     time: Res<Time>,
 ) {
     let delta = time.delta().as_secs_f32();
 
-    for (action, mut transform, PlayerControl{move_speed, rotate_speed}) in query.iter_mut() {
-        let z_rotation = transform.rotation.to_euler(EulerRot::XYZ).2;
+    for (action, transform, PlayerControl{move_speed, rotate_speed}, mut velocity) in query.iter_mut() {
+        let mut z_rotation = 0.;
         if action.pressed(Action::RotateRight) {
-            let z_rotation = z_rotation - *rotate_speed * delta;
-            transform.rotation = Quat::from_rotation_z(z_rotation);
+            z_rotation = z_rotation - *rotate_speed;
         } else if action.pressed(Action::RotateLeft) {
-            let z_rotation = z_rotation + *rotate_speed * delta;
-            transform.rotation = Quat::from_rotation_z(z_rotation);
+            z_rotation = z_rotation + *rotate_speed;
         }
+        velocity.angular = AxisAngle::new(Vec3::Z, z_rotation);
 
         let direction_vector =
             transform
@@ -166,7 +170,7 @@ fn move_player(
                     Vec3::ZERO
                 });
 
-        transform.translation +=
-            direction_vector.normalize_or_zero() * delta * *move_speed;
+        velocity.linear =
+            direction_vector.normalize_or_zero() * *move_speed;
     }
 }

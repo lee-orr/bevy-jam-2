@@ -3,6 +3,7 @@ use std::f32::consts::PI;
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 use bevy_ecs_ldtk::{prelude::FieldValue, EntityInstance, LdtkEntity};
 use bevy_kira_audio::{Audio, AudioSource};
+use heron::prelude::*;
 
 use crate::{
     audio::AudioEmitter, loading_state::LoadedAssets, player::PlayerControl,
@@ -28,7 +29,7 @@ impl Plugin for SpiritPlugin {
 }
 
 #[derive(Component)]
-pub struct Spirit(Vec3, f32);
+pub struct Spirit(f32);
 
 #[derive(Component)]
 pub struct SpiritRandomWalker;
@@ -178,7 +179,11 @@ fn spawn_spirit(
                     transform: transform.with_scale(Vec3::ONE * 3.),
                     ..default()
                 })
-                .insert(Spirit(Vec3::ZERO, max_speed));
+                .insert(Spirit(max_speed))
+                .insert(RigidBody::Dynamic)
+                .insert(CollisionShape::Sphere { radius: 3.})
+                .insert(PhysicMaterial { restitution: 0.9, friction: 0.1, density: 10.0, ..Default::default() })
+                .insert(Velocity::from_linear(Vec3::ZERO));
 
             if let Some((audio, file)) = audio {
                 spawning.insert(AudioEmitter(audio, file));
@@ -194,7 +199,7 @@ fn spawn_spirit(
 
 fn spirit_random_walk(
     mut spirits: Query<
-        (&mut Transform, &mut Spirit),
+        (&Transform, &Spirit, &mut Velocity),
         (
             With<SpiritRandomWalker>,
             Without<Collecting>,
@@ -220,30 +225,26 @@ fn spirit_random_walk(
         Vec3::ZERO
     };
 
-    for (mut spirit, mut velocity) in spirits.iter_mut() {
-        let direction = spirit.translation - player_position;
+    for (mut transform, spirit, mut velocity_component) in spirits.iter_mut() {
+        let direction = transform.translation - player_position;
+        if direction.length() > 300. {
+            return;
+        }
         let direction = direction.normalize();
 
-        velocity.0 += direction * delta * speed;
+        let mut velocity = velocity_component.linear + direction * delta * speed;
 
-        if velocity.0.length() > velocity.1 {
-            velocity.0 = velocity.0.normalize() * (velocity.1 - 1.);
+        if velocity.length() > spirit.0 {
+            velocity = velocity.normalize() * (spirit.0 - 1.);
         }
 
-        spirit.translation += velocity.0 * delta;
-
-        if spirit.translation.x.abs() > bounds.0 {
-            velocity.0.x = -1. * velocity.0.x;
-        }
-        if spirit.translation.y.abs() > bounds.1 {
-            velocity.0.y = -1. * velocity.0.y;
-        }
+        velocity_component.linear = velocity;
     }
 }
 
 fn spirit_surrounder(
     mut spirits: Query<
-        (&mut Transform, &mut Spirit, &SpiritSurrounder),
+        (&Transform, &Spirit, &SpiritSurrounder, &mut Velocity),
         (Without<Collecting>, Without<PlayerControl>),
     >,
     players: Query<&Transform, With<PlayerControl>>,
@@ -266,29 +267,22 @@ fn spirit_surrounder(
         Vec3::ZERO
     };
 
-    for (mut spirit, mut velocity, SpiritSurrounder(angle, target_distance)) in
+    for (transform, spirit, SpiritSurrounder(angle, target_distance), mut velocity_component) in
         spirits.iter_mut()
     {
         let target_position = player_position
             + *target_distance
                 * (Quat::from_rotation_z(angle * elapsed).mul_vec3(Vec3::Y));
 
-        let direction = target_position - spirit.translation;
+        let direction = target_position - transform.translation;
         let direction = direction.normalize();
 
-        velocity.0 += direction * delta * speed;
+        let mut velocity = velocity_component.linear + direction * delta * speed;
 
-        if velocity.0.length() > velocity.1 {
-            velocity.0 = velocity.0.normalize() * (velocity.1 - 1.);
+        if velocity.length() > spirit.0 {
+            velocity = velocity.normalize() * (spirit.0 - 1.);
         }
 
-        spirit.translation += velocity.0 * delta;
-
-        if spirit.translation.x.abs() > bounds.0 {
-            velocity.0.x = -1. * velocity.0.x;
-        }
-        if spirit.translation.y.abs() > bounds.1 {
-            velocity.0.y = -1. * velocity.0.y;
-        }
+        velocity_component.linear = velocity;
     }
 }

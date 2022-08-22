@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use heron::{Velocity, RigidBody, CollisionLayers};
 use leafwing_input_manager::prelude::*;
 
 use crate::{
@@ -40,7 +41,7 @@ pub fn collect_nearby_spirits(
         if action_state.just_pressed(Action::Collect) {
             for (entity, spirit) in spirits.iter() {
                 if (spirit.translation - player.translation).length() < 10. {
-                    commands.entity(entity).insert(Collecting);
+                    commands.entity(entity).insert(Collecting).insert(CollisionLayers::none());
                 }
             }
         }
@@ -50,7 +51,7 @@ pub fn collect_nearby_spirits(
 pub fn collecting_spirits(
     mut commands: Commands,
     mut spirits: Query<
-        (Entity, &mut Transform),
+        (Entity, &Transform, &mut Velocity),
         (With<Spirit>, With<Collecting>),
     >,
     players: Query<&Transform, (Without<Spirit>, With<PlayerControl>)>,
@@ -58,15 +59,15 @@ pub fn collecting_spirits(
     let target = players.get_single();
 
     if let Ok(player) = target {
-        for (entity, mut spirit) in spirits.iter_mut() {
-            let distance = player.translation - spirit.translation;
-            if distance.length() < 0.1 {
+        for (entity, transform, mut velocity) in spirits.iter_mut() {
+            let distance = player.translation - transform.translation;
+            if distance.length() < 3. {
                 commands
                     .entity(entity)
                     .remove::<Collecting>()
                     .insert(Collected);
             } else {
-                spirit.translation += distance / 10.;
+                velocity.linear += distance / 10.;
             }
         }
     }

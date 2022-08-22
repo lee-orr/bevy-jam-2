@@ -12,6 +12,7 @@ use audio::*;
 use bevy::{prelude::*, render::texture::ImageSettings};
 use bevy_inspector_egui::WorldInspectorPlugin;
 use camera::*;
+use heron::PhysicsPlugin;
 use level::*;
 use loading_state::*;
 use menu::*;
@@ -41,6 +42,7 @@ pub fn app() -> App {
         .add_plugin(AudioPlayerPlugin)
         .add_plugin(SpiritCollection)
         .add_plugin(CameraPlugin)
+        .add_plugin(PhysicsPlugin::default())
         .add_plugin(WorldInspectorPlugin::new());
     app
 }
