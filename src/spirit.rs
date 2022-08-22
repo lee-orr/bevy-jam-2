@@ -18,7 +18,7 @@ impl Plugin for SpiritPlugin {
         app.init_resource::<AwaitingEmitters>()
             .add_system_set(
                 SystemSet::on_update(States::InGame)
-                    .with_system(spirit_random_walk)
+                    .with_system(spirit_avoid_player)
                     .with_system(spirit_surrounder)
                     .with_system(determine_sightline),
             )
@@ -34,7 +34,7 @@ impl Plugin for SpiritPlugin {
 pub struct Spirit(f32);
 
 #[derive(Component)]
-pub struct SpiritRandomWalker;
+pub struct SpiritAvoidPlayer;
 
 #[derive(Component)]
 pub struct SpiritSurrounder(f32, f32);
@@ -105,7 +105,7 @@ fn spawn_spirit(
         found_entites = true;
         let spawning = match instance.identifier.as_str() {
             "RandomWalkSpirit" => {
-                Some(commands.spawn().insert(SpiritRandomWalker).id())
+                Some(commands.spawn().insert(SpiritAvoidPlayer).id())
             }
             "CirclingSpirit" => {
                 let mut angle = 10f32;
@@ -251,11 +251,11 @@ fn determine_sightline(
     }
 }
 
-fn spirit_random_walk(
+fn spirit_avoid_player(
     mut spirits: Query<
         (&Transform, &Spirit, &mut Velocity),
         (
-            With<SpiritRandomWalker>,
+            With<SpiritAvoidPlayer>,
             Without<Collecting>,
             Without<PlayerControl>,
             With<CanSeePlayer>,
