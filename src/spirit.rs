@@ -6,9 +6,12 @@ use bevy_kira_audio::{Audio, AudioSource};
 use heron::{prelude::*, rapier_plugin::PhysicsWorld};
 
 use crate::{
-    audio::AudioEmitter, loading_state::LoadedAssets,
-    physics::GameCollisionLayers, player::PlayerControl,
-    spirit_collection::Collecting, states::States,
+    audio::AudioEmitter,
+    loading_state::LoadedAssets,
+    physics::GameCollisionLayers,
+    player::PlayerControl,
+    spirit_collection::{Collected, Collecting},
+    states::States,
 };
 
 pub struct SpiritPlugin;
@@ -214,7 +217,10 @@ fn spawn_spirit(
 
 fn determine_sightline(
     mut commands: Commands,
-    spirits: Query<(Entity, &Transform), With<Spirit>>,
+    spirits: Query<
+        (Entity, &Transform),
+        (With<Spirit>, Without<Collecting>, Without<Collected>),
+    >,
     players: Query<(Entity, &Transform), With<PlayerControl>>,
     physics_world: PhysicsWorld,
 ) {
@@ -230,10 +236,11 @@ fn determine_sightline(
                 transform.translation,
                 target - transform.translation,
                 true,
-                CollisionLayers::all_groups::<GameCollisionLayers>().with_masks([
-                    GameCollisionLayers::Player,
-                    GameCollisionLayers::World,
-                ]),
+                CollisionLayers::all_groups::<GameCollisionLayers>()
+                    .with_masks([
+                        GameCollisionLayers::Player,
+                        GameCollisionLayers::World,
+                    ]),
                 |_entity| true,
             );
             if let Some(collision_info) = result {
