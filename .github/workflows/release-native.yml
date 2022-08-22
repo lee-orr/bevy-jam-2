@@ -96,13 +96,13 @@ jobs:
           recursive: false
           dest: ./${{ env.RELEASE_NAME }}-${{ needs.setup.outputs.version }}-ubuntu.zip
       
-    upload-itch:
-      needs:
-        - release-ubuntu
-        - release-mac
-        - release-windows
-      runs-on: ubuntu-latest
-      steps:
+  upload-itch:
+    needs:
+      - release-ubuntu
+      - release-mac
+      - release-windows
+    runs-on: ubuntu-latest
+    steps:
       - name: Itch.io
         uses: KikimoraGames/itch-publish@v0.0.3
         with:
