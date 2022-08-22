@@ -2,8 +2,9 @@ name: release-native
 
 on:
   push:
-    tags:
-      - "v*.*.*"
+    branches: [main]
+    #tags:
+    #  - "v*.*.*"
 
 env:
   RELEASE_NAME: my_game
@@ -45,6 +46,10 @@ jobs:
           prerelease: false
           fail_on_unmatched_files: true
           files: ./${{ env.RELEASE_NAME }}-${{ needs.setup.outputs.version }}-windows.zip
+      - uses: actions/upload-artifact@master
+        with:
+          name: windows
+          path: ./${{ env.RELEASE_NAME }}-${{ needs.setup.outputs.version }}-windows.zip
 
   release-mac:
     needs: setup
@@ -72,6 +77,10 @@ jobs:
           prerelease: false
           fail_on_unmatched_files: true
           files: ./${{ env.RELEASE_NAME }}-${{ needs.setup.outputs.version }}-darwin.zip
+      - uses: actions/upload-artifact@master
+        with:
+          name: darwin
+          path: ./${{ env.RELEASE_NAME }}-${{ needs.setup.outputs.version }}-darwin.zip
 
   release-ubuntu:
     needs: setup
@@ -95,6 +104,17 @@ jobs:
           files: assets/ ./${{ env.RELEASE_NAME }}
           recursive: false
           dest: ./${{ env.RELEASE_NAME }}-${{ needs.setup.outputs.version }}-ubuntu.zip
+      - name: Upload
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: false
+          prerelease: false
+          fail_on_unmatched_files: true
+          files: ./${{ env.RELEASE_NAME }}-${{ needs.setup.outputs.version }}-ubuntu.zip
+      - uses: actions/upload-artifact@master
+        with:
+          name: ubuntu
+          path: ./${{ env.RELEASE_NAME }}-${{ needs.setup.outputs.version }}-ubuntu.zip
       
   upload-itch:
     needs:
@@ -103,6 +123,18 @@ jobs:
       - release-windows
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/download-artifact@master
+        with:
+          name: ubuntu
+          path: ./${{ env.RELEASE_NAME }}-${{ needs.setup.outputs.version }}-ubuntu.zip
+      - uses: actions/download-artifact@master
+        with:
+          name: windows
+          path: ./${{ env.RELEASE_NAME }}-${{ needs.setup.outputs.version }}-windows.zip
+      - uses: actions/download-artifact@master
+        with:
+          name: darwin
+          path: ./${{ env.RELEASE_NAME }}-${{ needs.setup.outputs.version }}-darwin.zip
       - name: Itch.io
         uses: KikimoraGames/itch-publish@v0.0.3
         with:
@@ -111,13 +143,6 @@ jobs:
           itchUsername: ${{secrets.ITCH_USERNAME}}
           itchGameId: ${{ secrets.ITCH_GAME_ID }}
           buildChannel: "linux"
-      - name: Upload
-        uses: softprops/action-gh-release@v1
-        with:
-          draft: false
-          prerelease: false
-          fail_on_unmatched_files: true
-          files: ./${{ env.RELEASE_NAME }}-${{ needs.setup.outputs.version }}-ubuntu.zip
       - name: Itch.io
         uses: KikimoraGames/itch-publish@v0.0.3
         with:
