@@ -1,4 +1,5 @@
 use crate::loading_state::LoadedAssets;
+use crate::physics::GameCollisionLayers;
 use crate::states::States;
 use bevy::prelude::*;
 use bevy_ecs_ldtk::ldtk::TileInstance;
@@ -40,7 +41,8 @@ fn build_walls(mut commands: Commands, cells: Query<(Entity, &IntGridCell), Adde
             bevy::log::info!("Build wall!");
             commands.entity(entity)
                 .insert(RigidBody::Static)
-                .insert(CollisionShape::Cuboid { half_extends: Vec3::new(16., 16., 0.), border_radius: None });
+                .insert(CollisionShape::Cuboid { half_extends: Vec3::new(16., 16., 0.), border_radius: None })
+                .insert(CollisionLayers::all_masks::<GameCollisionLayers>().with_group(GameCollisionLayers::World));
         }
     }
 }

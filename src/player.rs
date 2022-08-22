@@ -6,7 +6,7 @@ use bevy_inspector_egui::{Inspectable, RegisterInspectable};
 use leafwing_input_manager::prelude::*;
 use heron::prelude::*;
 
-use crate::states::States;
+use crate::{states::States, physics::GameCollisionLayers};
 
 pub struct PlayerPlugin;
 
@@ -108,7 +108,8 @@ fn spawn_player(
                 .insert(RigidBody::Dynamic)
                 .insert(CollisionShape::Sphere { radius: 3.})
                 .insert(PhysicMaterial { restitution: 0.9, friction: 0.1, density: 10.0, ..Default::default() })
-                .insert(Velocity::from_linear(Vec3::ZERO));
+                .insert(Velocity::from_linear(Vec3::ZERO))
+                .insert(CollisionLayers::all_masks::<GameCollisionLayers>().with_group(GameCollisionLayers::Player));
         }
     }
 }

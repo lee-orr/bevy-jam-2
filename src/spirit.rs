@@ -3,10 +3,11 @@ use std::f32::consts::PI;
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 use bevy_ecs_ldtk::{prelude::FieldValue, EntityInstance, LdtkEntity};
 use bevy_kira_audio::{Audio, AudioSource};
-use heron::prelude::*;
+use heron::{prelude::*, rapier_plugin::PhysicsWorld};
 
 use crate::{
-    audio::AudioEmitter, loading_state::LoadedAssets, player::PlayerControl,
+    audio::AudioEmitter, loading_state::LoadedAssets,
+    physics::GameCollisionLayers, player::PlayerControl,
     spirit_collection::Collecting, states::States,
 };
 
@@ -18,7 +19,8 @@ impl Plugin for SpiritPlugin {
             .add_system_set(
                 SystemSet::on_update(States::InGame)
                     .with_system(spirit_random_walk)
-                    .with_system(spirit_surrounder),
+                    .with_system(spirit_surrounder)
+                    .with_system(determine_sightline),
             )
             .add_system_set(
                 SystemSet::on_update(States::LoadingLevel)
@@ -36,6 +38,10 @@ pub struct SpiritRandomWalker;
 
 #[derive(Component)]
 pub struct SpiritSurrounder(f32, f32);
+
+#[derive(Component)]
+#[component(storage = "SparseSet")]
+struct CanSeePlayer;
 
 pub struct AwaitingEmitters {
     pub emitters: Vec<Handle<AudioSource>>,
@@ -181,9 +187,18 @@ fn spawn_spirit(
                 })
                 .insert(Spirit(max_speed))
                 .insert(RigidBody::Dynamic)
-                .insert(CollisionShape::Sphere { radius: 3.})
-                .insert(PhysicMaterial { restitution: 0.9, friction: 0.1, density: 10.0, ..Default::default() })
-                .insert(Velocity::from_linear(Vec3::ZERO));
+                .insert(CollisionShape::Sphere { radius: 3. })
+                .insert(PhysicMaterial {
+                    restitution: 0.9,
+                    friction: 0.1,
+                    density: 10.0,
+                    ..Default::default()
+                })
+                .insert(Velocity::from_linear(Vec3::ZERO))
+                .insert(
+                    CollisionLayers::all_masks::<GameCollisionLayers>()
+                        .with_group(GameCollisionLayers::Spirit),
+                );
 
             if let Some((audio, file)) = audio {
                 spawning.insert(AudioEmitter(audio, file));
@@ -197,6 +212,45 @@ fn spawn_spirit(
     }
 }
 
+fn determine_sightline(
+    mut commands: Commands,
+    spirits: Query<(Entity, &Transform), With<Spirit>>,
+    players: Query<(Entity, &Transform), With<PlayerControl>>,
+    physics_world: PhysicsWorld,
+) {
+    bevy::log::info!("Looking for player");
+    let target = players.get_single();
+    if let Ok((player, player_transform)) = target {
+        let target = player_transform.translation;
+        bevy::log::info!("Got player position {:?}", &target);
+
+        for (entity, transform) in spirits.iter() {
+            bevy::log::info!("Checking from {:?}", &transform.translation);
+            let result = physics_world.ray_cast_with_filter(
+                transform.translation,
+                target - transform.translation,
+                true,
+                CollisionLayers::all_groups::<GameCollisionLayers>().with_masks([
+                    GameCollisionLayers::Player,
+                    GameCollisionLayers::World,
+                ]),
+                |_entity| true,
+            );
+            if let Some(collision_info) = result {
+                if collision_info.entity == player {
+                    bevy::log::info!("Player found");
+                    commands.entity(entity).insert(CanSeePlayer);
+                } else {
+                    bevy::log::info!("Player not found");
+                    commands.entity(entity).remove::<CanSeePlayer>();
+                }
+            } else {
+                bevy::log::info!("No collision");
+            }
+        }
+    }
+}
+
 fn spirit_random_walk(
     mut spirits: Query<
         (&Transform, &Spirit, &mut Velocity),
@@ -204,6 +258,7 @@ fn spirit_random_walk(
             With<SpiritRandomWalker>,
             Without<Collecting>,
             Without<PlayerControl>,
+            With<CanSeePlayer>,
         ),
     >,
     players: Query<&Transform, With<PlayerControl>>,
@@ -232,7 +287,8 @@ fn spirit_random_walk(
         }
         let direction = direction.normalize();
 
-        let mut velocity = velocity_component.linear + direction * delta * speed;
+        let mut velocity =
+            velocity_component.linear + direction * delta * speed;
 
         if velocity.length() > spirit.0 {
             velocity = velocity.normalize() * (spirit.0 - 1.);
@@ -245,7 +301,11 @@ fn spirit_random_walk(
 fn spirit_surrounder(
     mut spirits: Query<
         (&Transform, &Spirit, &SpiritSurrounder, &mut Velocity),
-        (Without<Collecting>, Without<PlayerControl>),
+        (
+            Without<Collecting>,
+            Without<PlayerControl>,
+            With<CanSeePlayer>,
+        ),
     >,
     players: Query<&Transform, With<PlayerControl>>,
     time: Res<Time>,
@@ -267,8 +327,12 @@ fn spirit_surrounder(
         Vec3::ZERO
     };
 
-    for (transform, spirit, SpiritSurrounder(angle, target_distance), mut velocity_component) in
-        spirits.iter_mut()
+    for (
+        transform,
+        spirit,
+        SpiritSurrounder(angle, target_distance),
+        mut velocity_component,
+    ) in spirits.iter_mut()
     {
         let target_position = player_position
             + *target_distance
@@ -277,7 +341,8 @@ fn spirit_surrounder(
         let direction = target_position - transform.translation;
         let direction = direction.normalize();
 
-        let mut velocity = velocity_component.linear + direction * delta * speed;
+        let mut velocity =
+            velocity_component.linear + direction * delta * speed;
 
         if velocity.length() > spirit.0 {
             velocity = velocity.normalize() * (spirit.0 - 1.);

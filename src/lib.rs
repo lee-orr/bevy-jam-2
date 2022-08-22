@@ -7,6 +7,7 @@ mod player;
 mod spirit;
 mod spirit_collection;
 mod states;
+mod physics;
 
 use audio::*;
 use bevy::{prelude::*, render::texture::ImageSettings};
