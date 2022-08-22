@@ -13,12 +13,17 @@ pub struct SpiritPlugin;
 
 impl Plugin for SpiritPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(
-            SystemSet::on_update(States::InGame)
-                .with_system(spirit_random_walk)
-                .with_system(spirit_surrounder)
-                .with_system(spawn_spirit),
-        );
+        app.init_resource::<AwaitingEmitters>()
+            .add_system_set(
+                SystemSet::on_update(States::InGame)
+                    .with_system(spirit_random_walk)
+                    .with_system(spirit_surrounder),
+            )
+            .add_system_set(
+                SystemSet::on_update(States::LoadingLevel)
+                    .with_system(spawn_spirit)
+                    .with_system(spirits_ready),
+            );
     }
 }
 
@@ -31,15 +36,66 @@ pub struct SpiritRandomWalker;
 #[derive(Component)]
 pub struct SpiritSurrounder(f32, f32);
 
+pub struct AwaitingEmitters {
+    pub emitters: Vec<Handle<AudioSource>>,
+    pub is_set: bool,
+}
+
+impl Default for AwaitingEmitters {
+    fn default() -> Self {
+        Self {
+            emitters: vec![],
+            is_set: false,
+        }
+    }
+}
+
+fn spirits_ready(
+    mut awaiting_emitters: ResMut<AwaitingEmitters>,
+    mut app_state: ResMut<State<States>>,
+    asset_server: Res<AssetServer>,
+) {
+    if !awaiting_emitters.is_set {
+        bevy::log::info!("Waiting - not set yet");
+        return;
+    }
+    let mut ready = true;
+    for emitter in awaiting_emitters.emitters.iter() {
+        let state = asset_server.get_load_state(emitter.clone());
+        match state {
+            bevy::asset::LoadState::Loading => {
+                ready = false;
+                break;
+            }
+            _ => {}
+        }
+    }
+
+    if ready {
+        if let Ok(_) = app_state.set(States::InGame) {
+            bevy::log::info!("Starting Level");
+            awaiting_emitters.emitters = vec![];
+            awaiting_emitters.is_set = false;
+            return;
+        }
+    }
+
+    bevy::log::info!("Waiting - not ready yet");
+}
+
 fn spawn_spirit(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
+    mut awaiting_emitters: ResMut<AwaitingEmitters>,
     assets: Res<LoadedAssets>,
     asset_server: Res<AssetServer>,
     entities: Query<(&EntityInstance, &Transform), Added<EntityInstance>>,
 ) {
+    let mut emitters: Vec<Handle<AudioSource>> = vec![];
+    let mut found_entites = false;
     for (instance, transform) in entities.iter() {
+        found_entites = true;
         let spawning = match instance.identifier.as_str() {
             "RandomWalkSpirit" => {
                 Some(commands.spawn().insert(SpiritRandomWalker).id())
@@ -95,6 +151,9 @@ fn spawn_spirit(
                             {
                                 let handle: Handle<AudioSource> =
                                     asset_server.load(&audio_file.clone());
+
+                                emitters.push(handle.clone());
+
                                 audio = Some((handle, audio_file.clone()));
                             }
                         }
@@ -125,6 +184,11 @@ fn spawn_spirit(
                 spawning.insert(AudioEmitter(audio, file));
             }
         }
+    }
+
+    if (found_entites) {
+        awaiting_emitters.emitters = emitters;
+        awaiting_emitters.is_set = true;
     }
 }
 

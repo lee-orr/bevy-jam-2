@@ -25,7 +25,7 @@ image = "0.24.3"
 winit = "0.26.1"
 leafwing-input-manager = "0.5.1"
 bevy_asset_loader = "*"
-bevy_ecs_ldtk = "0.4"
+bevy_ecs_ldtk = { version = "0.4", features=["atlas"] }
 bevy-inspector-egui = "0.12"
 heron = { version = "4", features = ["2d"] }
 

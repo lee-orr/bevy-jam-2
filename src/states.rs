@@ -2,5 +2,6 @@
 pub enum States {
     Loading,
     Menu,
+    LoadingLevel,
     InGame,
 }

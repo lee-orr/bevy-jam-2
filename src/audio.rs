@@ -36,7 +36,11 @@ fn play_loop(
     emitters: Query<(Entity, &AudioEmitter), Without<AudioInstanceHandle>>,
 ) {
     for (entity, emitter) in emitters.iter() {
-        let handle = audio.play(emitter.0.clone()).looped().handle();
+        let handle = audio
+            .play(emitter.0.clone())
+            .looped()
+            .with_volume(0.)
+            .handle();
         commands.entity(entity).insert(AudioInstanceHandle(handle));
     }
 }

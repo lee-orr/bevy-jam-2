@@ -12,7 +12,14 @@ impl Plugin for MenuPlugin {
         .add_system_set(
             SystemSet::on_update(States::Menu).with_system(button_system),
         )
-        .add_system_set(SystemSet::on_exit(States::Menu).with_system(cleanup));
+        .add_system_set(SystemSet::on_exit(States::Menu).with_system(cleanup))
+        .add_system_set(
+            SystemSet::on_enter(States::LoadingLevel)
+                .with_system(display_loading),
+        )
+        .add_system_set(
+            SystemSet::on_exit(States::LoadingLevel).with_system(cleanup),
+        );
     }
 }
 
@@ -48,6 +55,34 @@ fn setup(mut commands: Commands, assets: Res<LoadedAssets>) {
         });
 }
 
+fn display_loading(mut commands: Commands, assets: Res<LoadedAssets>) {
+    commands
+        .spawn_bundle(NodeBundle {
+            style: Style {
+                size: Size::new(Val::Percent(100.), Val::Percent(100.)),
+                // center button
+                margin: UiRect::all(Val::Auto),
+                // horizontally center child text
+                justify_content: JustifyContent::Center,
+                // vertically center child text
+                align_items: AlignItems::Center,
+                ..default()
+            },
+            color: NORMAL_BUTTON.into(),
+            ..default()
+        })
+        .with_children(|parent| {
+            parent.spawn_bundle(TextBundle::from_section(
+                "Loading level...",
+                TextStyle {
+                    font: assets.font.clone(),
+                    font_size: 40.0,
+                    color: Color::rgb(0.9, 0.9, 0.9),
+                },
+            ));
+        });
+}
+
 fn cleanup(mut commands: Commands, q: Query<Entity, With<Node>>) {
     for e in q.iter() {
         commands.entity(e).despawn_recursive();
@@ -67,7 +102,7 @@ fn button_system(
         match *interaction {
             Interaction::Clicked => {
                 *color = PRESSED_BUTTON.into();
-                app_state.set(States::InGame).unwrap();
+                app_state.set(States::LoadingLevel).unwrap();
             }
             Interaction::Hovered => {
                 *color = HOVERED_BUTTON.into();
