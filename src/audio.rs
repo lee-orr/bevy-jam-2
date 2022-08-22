@@ -28,7 +28,7 @@ struct AudioInstanceHandle(Handle<AudioInstance>);
 #[derive(Component)]
 pub struct AudioEmitter(pub Handle<AudioSource>, pub String);
 
-const AUDIO_RANGE: f32 = 50.;
+const AUDIO_RANGE: f32 = 200.;
 
 fn play_loop(
     mut commands: Commands,
