@@ -21,7 +21,7 @@ fn load_camera(mut commands: Commands) {
     commands
         .spawn_bundle(Camera2dBundle {
             projection: OrthographicProjection {
-                scale: 0.2,
+                scale: 0.4,
                 ..Default::default()
             },
             ..Default::default()

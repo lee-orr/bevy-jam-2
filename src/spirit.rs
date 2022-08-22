@@ -182,12 +182,12 @@ fn spawn_spirit(
                         .add(Mesh::from(shape::Circle::default()))
                         .into(),
                     material: materials.add(ColorMaterial::from(color)),
-                    transform: transform.with_scale(Vec3::ONE * 3.),
+                    transform: transform.with_scale(Vec3::ONE * 6.),
                     ..default()
                 })
                 .insert(Spirit(max_speed))
                 .insert(RigidBody::Dynamic)
-                .insert(CollisionShape::Sphere { radius: 3. })
+                .insert(CollisionShape::Sphere { radius: 6. })
                 .insert(PhysicMaterial {
                     restitution: 0.9,
                     friction: 0.1,

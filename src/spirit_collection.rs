@@ -40,7 +40,7 @@ pub fn collect_nearby_spirits(
     if let Ok((action_state, player)) = target {
         if action_state.just_pressed(Action::Collect) {
             for (entity, spirit) in spirits.iter() {
-                if (spirit.translation - player.translation).length() < 10. {
+                if (spirit.translation - player.translation).length() < 30. {
                     commands.entity(entity).insert(Collecting).insert(CollisionLayers::none());
                 }
             }

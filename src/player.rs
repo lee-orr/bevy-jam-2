@@ -87,7 +87,7 @@ fn spawn_player(
                     mesh: meshes
                         .add(Mesh::from(shape::Circle::default()))
                         .into(),
-                    transform: transform.with_scale(Vec3::new(5., 5., 5.)),
+                    transform: transform.with_scale(Vec3::new(10., 10., 10.)),
                     material: materials.add(ColorMaterial::from(Color::RED)),
                     ..default()
                 })
@@ -106,7 +106,7 @@ fn spawn_player(
                     });
                 })
                 .insert(RigidBody::Dynamic)
-                .insert(CollisionShape::Sphere { radius: 3.})
+                .insert(CollisionShape::Sphere { radius: 6.})
                 .insert(PhysicMaterial { restitution: 0.9, friction: 0.1, density: 10.0, ..Default::default() })
                 .insert(Velocity::from_linear(Vec3::ZERO))
                 .insert(CollisionLayers::all_masks::<GameCollisionLayers>().with_group(GameCollisionLayers::Player));
