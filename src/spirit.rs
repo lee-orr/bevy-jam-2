@@ -63,7 +63,7 @@ fn spirits_ready(
     asset_server: Res<AssetServer>,
 ) {
     if !awaiting_emitters.is_set {
-        bevy::log::info!("Waiting - not set yet");
+        bevy::log::debug!("Waiting - not set yet");
         return;
     }
     let mut ready = true;
@@ -80,14 +80,14 @@ fn spirits_ready(
 
     if ready {
         if let Ok(_) = app_state.set(States::InGame) {
-            bevy::log::info!("Starting Level");
+            bevy::log::debug!("Starting Level");
             awaiting_emitters.emitters = vec![];
             awaiting_emitters.is_set = false;
             return;
         }
     }
 
-    bevy::log::info!("Waiting - not ready yet");
+    bevy::log::debug!("Waiting - not ready yet");
 }
 
 fn spawn_spirit(
@@ -218,14 +218,14 @@ fn determine_sightline(
     players: Query<(Entity, &Transform), With<PlayerControl>>,
     physics_world: PhysicsWorld,
 ) {
-    bevy::log::info!("Looking for player");
+    bevy::log::debug!("Looking for player");
     let target = players.get_single();
     if let Ok((player, player_transform)) = target {
         let target = player_transform.translation;
-        bevy::log::info!("Got player position {:?}", &target);
+        bevy::log::debug!("Got player position {:?}", &target);
 
         for (entity, transform) in spirits.iter() {
-            bevy::log::info!("Checking from {:?}", &transform.translation);
+            bevy::log::debug!("Checking from {:?}", &transform.translation);
             let result = physics_world.ray_cast_with_filter(
                 transform.translation,
                 target - transform.translation,
@@ -238,14 +238,14 @@ fn determine_sightline(
             );
             if let Some(collision_info) = result {
                 if collision_info.entity == player {
-                    bevy::log::info!("Player found");
+                    bevy::log::debug!("Player found");
                     commands.entity(entity).insert(CanSeePlayer);
                 } else {
-                    bevy::log::info!("Player not found");
+                    bevy::log::debug!("Player not found");
                     commands.entity(entity).remove::<CanSeePlayer>();
                 }
             } else {
-                bevy::log::info!("No collision");
+                bevy::log::debug!("No collision");
             }
         }
     }
