@@ -13,6 +13,7 @@ impl Plugin for LevelPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(LdtkPlugin)
             .insert_resource(LevelSelection::Identifier("Level_1".into()))
+            .insert_resource(LdtkSettings { level_background: LevelBackground::Nonexistent, ..default()})
             .add_system_set(
                 SystemSet::on_enter(States::LoadingLevel)
                     .with_system(start_level),

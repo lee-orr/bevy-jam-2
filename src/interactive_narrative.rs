@@ -7,6 +7,7 @@ use crate::{
     },
     loading_state::LoadedAssets,
     states::States,
+    theme::*,
 };
 
 pub struct InteractiveNarrativePlugin;
@@ -64,9 +65,10 @@ fn display_current_narrative(
         commands
             .spawn_bundle(NodeBundle {
                 style: Style {
+                    size: Size { height: Val::Auto, width: Val::Percent(100.)},
                     margin: UiRect::new(
                         Val::Percent(5.),
-                        Val::Auto,
+                        Val::Percent(5.),
                         Val::Auto,
                         Val::Percent(5.),
                     ),
@@ -76,7 +78,7 @@ fn display_current_narrative(
                     flex_direction: FlexDirection::ColumnReverse,
                     ..default()
                 },
-                color: Color::rgb(0.15, 0.15, 0.15).into(),
+                color: NORMAL_BUTTON.into(),
                 ..default()
             })
             .insert(NarrativeDisplayRoot)
@@ -87,7 +89,7 @@ fn display_current_narrative(
                         TextStyle {
                             font: assets.font.clone(),
                             font_size: 26.0,
-                            color: Color::rgb(0.9, 0.9, 0.9),
+                            color: TEXT_COLOR,
                         },
                     ));
                 }

@@ -10,6 +10,7 @@ mod states;
 mod physics;
 mod ink;
 mod interactive_narrative;
+mod theme;
 
 use audio::*;
 use bevy::{prelude::*, render::texture::ImageSettings};
@@ -25,13 +26,12 @@ use spirit::*;
 use spirit_collection::*;
 use interactive_narrative::*;
 use states::States;
-
-pub const LAUNCHER_TITLE: &str = "Memory Mixer";
+use theme::*;
 
 pub fn app() -> App {
     let mut app = App::new();
     app.insert_resource(ImageSettings::default_nearest())
-        .insert_resource(ClearColor(Color::rgb(0.035, 0.039, 0.094)))
+        .insert_resource(ClearColor(BACKGROUIND_COLOR))
         .insert_resource(WindowDescriptor {
             title: LAUNCHER_TITLE.to_string(),
             canvas: Some("#bevy".to_string()),
