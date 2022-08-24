@@ -107,6 +107,7 @@ fn spawn_spirit(
     for (instance, transform) in entities.iter() {
         found_entites = true;
         let spawning = match instance.identifier.as_str() {
+            "StationarySpirit" => {Some(commands.spawn().id())},
             "RandomWalkSpirit" => {
                 Some(commands.spawn().insert(SpiritAvoidPlayer).id())
             }

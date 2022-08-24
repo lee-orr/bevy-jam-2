@@ -34,11 +34,8 @@ fn start_level(mut commands: Commands, assets: Res<LoadedAssets>) {
 }
 
 fn build_walls(mut commands: Commands, cells: Query<(Entity, &IntGridCell), Added<IntGridCell>>) {
-    bevy::log::info!("Building walls");
     for (entity, cell) in cells.iter() {
-        bevy::log::info!("Checking cell");
         if cell.value == 2 {
-            bevy::log::info!("Build wall!");
             commands.entity(entity)
                 .insert(RigidBody::Static)
                 .insert(CollisionShape::Cuboid { half_extends: Vec3::new(36., 36., 0.), border_radius: None })

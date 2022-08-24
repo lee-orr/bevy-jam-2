@@ -22,9 +22,11 @@ impl Plugin for SpiritCollection {
 }
 
 #[derive(Component)]
+#[component(storage = "SparseSet")]
 pub struct Collecting;
 
 #[derive(Component)]
+#[component(storage = "SparseSet")]
 pub struct Collected;
 
 pub fn collect_nearby_spirits(

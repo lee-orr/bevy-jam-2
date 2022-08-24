@@ -8,18 +8,22 @@ mod spirit;
 mod spirit_collection;
 mod states;
 mod physics;
+mod ink;
+mod interactive_narrative;
 
 use audio::*;
 use bevy::{prelude::*, render::texture::ImageSettings};
 use bevy_inspector_egui::WorldInspectorPlugin;
 use camera::*;
 use heron::PhysicsPlugin;
+use ink::InkPlugin;
 use level::*;
 use loading_state::*;
 use menu::*;
 use player::*;
 use spirit::*;
 use spirit_collection::*;
+use interactive_narrative::*;
 use states::States;
 
 pub const LAUNCHER_TITLE: &str = "Memory Mixer";
@@ -44,6 +48,8 @@ pub fn app() -> App {
         .add_plugin(SpiritCollection)
         .add_plugin(CameraPlugin)
         .add_plugin(PhysicsPlugin::default())
-        .add_plugin(WorldInspectorPlugin::new());
+        .add_plugin(WorldInspectorPlugin::new())
+        .add_plugin(InkPlugin)
+        .add_plugin(InteractiveNarrativePlugin);
     app
 }

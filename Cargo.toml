@@ -28,6 +28,7 @@ bevy_asset_loader = "*"
 bevy_ecs_ldtk = { version = "0.4", features=["atlas"] }
 bevy-inspector-egui = "0.12"
 heron = { version = "4", features = ["2d"] }
+inkling = "0.12.5"
 
 [dependencies.bevy]
 version = "0.8.0"

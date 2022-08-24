@@ -2295,6 +2295,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a257582fdcde896fd96463bf2d40eefea0580021c0712a0e2b028b60b47a837a"
 
 [[package]]
+name = "inkling"
+version = "0.12.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cb342fbfdb0ff6e5d1ace048b4615565e9c2483068f61e1ef856c670c4508beb"
+
+[[package]]
 name = "inotify"
 version = "0.9.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2694,6 +2700,7 @@ dependencies = [
  "bevy_kira_audio",
  "heron",
  "image 0.24.3",
+ "inkling",
  "leafwing-input-manager",
  "winit",
 ]
