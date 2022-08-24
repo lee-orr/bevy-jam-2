@@ -12,7 +12,7 @@ pub struct LevelPlugin;
 impl Plugin for LevelPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(LdtkPlugin)
-            .insert_resource(LevelSelection::Identifier("Level_0".into()))
+            .insert_resource(LevelSelection::Identifier("Level_1".into()))
             .add_system_set(
                 SystemSet::on_enter(States::LoadingLevel)
                     .with_system(start_level),
@@ -30,7 +30,7 @@ fn start_level(mut commands: Commands, assets: Res<LoadedAssets>) {
         ldtk_handle: assets.test_level.clone(),
         ..Default::default()
     });
-    commands.insert_resource(LevelSelection::Identifier("Level_0".into()));
+    commands.insert_resource(LevelSelection::Identifier("Level_1".into()));
 }
 
 fn build_walls(mut commands: Commands, cells: Query<(Entity, &IntGridCell), Added<IntGridCell>>) {

@@ -13,7 +13,7 @@ mod interactive_narrative;
 
 use audio::*;
 use bevy::{prelude::*, render::texture::ImageSettings};
-use bevy_inspector_egui::WorldInspectorPlugin;
+use bevy_inspector_egui::{WorldInspectorPlugin, plugin::InspectorWindows};
 use camera::*;
 use heron::PhysicsPlugin;
 use ink::InkPlugin;
