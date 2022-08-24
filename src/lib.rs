@@ -31,6 +31,7 @@ pub const LAUNCHER_TITLE: &str = "Memory Mixer";
 pub fn app() -> App {
     let mut app = App::new();
     app.insert_resource(ImageSettings::default_nearest())
+        .insert_resource(ClearColor(Color::rgb(0.035, 0.039, 0.094)))
         .insert_resource(WindowDescriptor {
             title: LAUNCHER_TITLE.to_string(),
             canvas: Some("#bevy".to_string()),
@@ -48,7 +49,7 @@ pub fn app() -> App {
         .add_plugin(SpiritCollection)
         .add_plugin(CameraPlugin)
         .add_plugin(PhysicsPlugin::default())
-        .add_plugin(WorldInspectorPlugin::new())
+        // .add_plugin(WorldInspectorPlugin::new())
         .add_plugin(InkPlugin)
         .add_plugin(InteractiveNarrativePlugin);
     app
