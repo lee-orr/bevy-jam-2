@@ -26,3 +26,6 @@ features = [
   "filesystem_watcher",
   "x11"
 ]
+
+[patch.crates-io]
+wgpu = { git = "https://github.com/mockersf/wgpu/", branch = "unconditional-clear-workaround" }
