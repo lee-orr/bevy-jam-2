@@ -5,7 +5,6 @@ mod loading_state;
 mod menu;
 mod player;
 mod spirit;
-mod spirit_collection;
 mod states;
 mod physics;
 mod ink;
@@ -23,7 +22,6 @@ use loading_state::*;
 use menu::*;
 use player::*;
 use spirit::*;
-use spirit_collection::*;
 use interactive_narrative::*;
 use states::States;
 use theme::*;
@@ -46,7 +44,6 @@ pub fn app() -> App {
         .add_plugin(PlayerPlugin)
         .add_plugin(SpiritPlugin)
         .add_plugin(AudioPlayerPlugin)
-        .add_plugin(SpiritCollection)
         .add_plugin(CameraPlugin)
         .add_plugin(PhysicsPlugin::default())
         // .add_plugin(WorldInspectorPlugin::new())

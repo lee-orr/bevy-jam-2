@@ -12,8 +12,10 @@ pub struct LevelPlugin;
 impl Plugin for LevelPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(LdtkPlugin)
-            .insert_resource(LevelSelection::Identifier("Level_1".into()))
+            .add_event::<SetLevelEvent>()
+            .insert_resource(LevelSelection::Identifier("Level_0".into()))
             .insert_resource(LdtkSettings { level_background: LevelBackground::Nonexistent, ..default()})
+            .add_system(set_level)
             .add_system_set(
                 SystemSet::on_enter(States::LoadingLevel)
                     .with_system(start_level),
@@ -25,12 +27,32 @@ impl Plugin for LevelPlugin {
     }
 }
 
-fn start_level(mut commands: Commands, assets: Res<LoadedAssets>) {
+pub struct SetLevelEvent(pub String);
+
+fn set_level(mut commands: Commands, mut events: EventReader<SetLevelEvent>, 
+    mut app_state: ResMut<State<States>>,) {
+        
+    let event = events.iter().last();
+
+    if let Some(SetLevelEvent(level)) = event {
+        commands.insert_resource(LevelSelection::Identifier(level.into()));
+        app_state.set(States::LoadingLevel);
+    }
+    }
+
+#[derive(Component)]
+#[component(storage = "SparseSet")]
+pub struct LevelElement;
+
+fn start_level(mut commands: Commands, assets: Res<LoadedAssets>, elements: Query<Entity, With<LevelElement>>) {
+    for entity in elements.iter() {
+        commands.entity(entity).despawn_recursive();
+    }
     bevy::log::info!("Loading level");
     commands.spawn_bundle(LdtkWorldBundle {
         ldtk_handle: assets.test_level.clone(),
         ..Default::default()
-    });
+    }).insert(LevelElement);
 }
 
 fn build_walls(mut commands: Commands, cells: Query<(Entity, &IntGridCell), Added<IntGridCell>>) {

@@ -6,7 +6,7 @@ use bevy_inspector_egui::{Inspectable, RegisterInspectable};
 use leafwing_input_manager::prelude::*;
 use heron::prelude::*;
 
-use crate::{states::States, physics::GameCollisionLayers};
+use crate::{states::States, physics::GameCollisionLayers, ink::ink_story::{InkStory, StoryEvent}};
 
 pub struct PlayerPlugin;
 
@@ -29,7 +29,7 @@ pub enum Action {
     MoveDown,
     RotateLeft,
     RotateRight,
-    Collect,
+    Interact,
 }
 
 #[derive(Component, Reflect)]
@@ -53,6 +53,8 @@ fn spawn_player(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     entities: Query<(&EntityInstance, &Transform), Added<EntityInstance>>,
+    mut story: Option<ResMut<InkStory>>,
+    mut event_writer: EventWriter<StoryEvent>,
 ) {
     for (instance, transform) in entities.iter() {
         if instance.identifier == "Player" {
@@ -73,6 +75,15 @@ fn spawn_player(
                             if let FieldValue::Float(Some(speed)) = field.value
                             {
                                 rotate_speed = speed;
+                            }
+                        }
+                        "LevelStartKnot" => {
+                            if let FieldValue::String(Some(knot)) = &field.value {
+                                if let Some(story) = &mut story {
+                                    bevy::log::info!("Setting story knot {}", &knot);
+                                    story.move_to(knot, None);
+                                    story.resume_story_with_event(&mut event_writer);
+                                }
                             }
                         }
                         _ => {}
@@ -135,8 +146,8 @@ fn setup_player_control(
                     (KeyCode::S, Action::MoveDown),
                     (KeyCode::A, Action::RotateLeft),
                     (KeyCode::D, Action::RotateRight),
-                    (KeyCode::Return, Action::Collect),
-                    (KeyCode::Space, Action::Collect),
+                    (KeyCode::Return, Action::Interact),
+                    (KeyCode::Space, Action::Interact),
                 ]),
             });
     }

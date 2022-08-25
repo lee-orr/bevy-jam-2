@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use crate::level::SetLevelEvent;
 use crate::theme::*;
 
 use crate::{loading_state::LoadedAssets, states::States};
@@ -107,14 +108,14 @@ fn button_system(
         (Changed<Interaction>, With<Button>),
     >,
     mut text_query: Query<&mut Text>,
-    mut app_state: ResMut<State<States>>,
+    mut event_writer: EventWriter<SetLevelEvent>,
 ) {
     for (interaction, mut color, children) in &mut interaction_query {
         let _text = text_query.get_mut(children[0]).unwrap();
         match *interaction {
             Interaction::Clicked => {
                 *color = PRESSED_BUTTON.into();
-                app_state.set(States::LoadingLevel).unwrap();
+                event_writer.send(SetLevelEvent("Level_1".into()))
             }
             Interaction::Hovered => {
                 *color = HOVERED_BUTTON.into();

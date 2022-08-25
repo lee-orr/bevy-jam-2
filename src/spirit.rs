@@ -4,14 +4,14 @@ use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 use bevy_ecs_ldtk::{prelude::FieldValue, EntityInstance, LdtkEntity};
 use bevy_kira_audio::{Audio, AudioSource};
 use heron::{prelude::*, rapier_plugin::PhysicsWorld};
+use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
     audio::AudioEmitter,
     loading_state::LoadedAssets,
     physics::GameCollisionLayers,
-    player::PlayerControl,
-    spirit_collection::{Collected, Collecting},
-    states::States,
+    player::{PlayerControl, Action},
+    states::States, ink::ink_story::{StoryEvent, InkStory},
 };
 
 pub struct SpiritPlugin;
@@ -23,7 +23,8 @@ impl Plugin for SpiritPlugin {
                 SystemSet::on_update(States::InGame)
                     .with_system(spirit_avoid_player)
                     .with_system(spirit_surrounder)
-                    .with_system(determine_sightline),
+                    .with_system(determine_sightline)
+                    .with_system(trigger_knot),
             )
             .add_system_set(
                 SystemSet::on_update(States::LoadingLevel)
@@ -41,6 +42,9 @@ pub struct SpiritAvoidPlayer;
 
 #[derive(Component)]
 pub struct SpiritSurrounder(f32, f32);
+
+#[derive(Component)]
+pub struct TargetKnot(String);
 
 #[derive(Component)]
 #[component(storage = "SparseSet")]
@@ -143,10 +147,11 @@ fn spawn_spirit(
         };
         if let Some(entity) = spawning {
             let mut spawning = commands.entity(entity);
-            let (max_speed, audio, color) = {
+            let (max_speed, audio, color, knot) = {
                 let mut max_speed = 9.5f32;
                 let mut audio = None;
                 let mut color = Color::WHITE;
+                let mut knot = None;
 
                 for field in instance.field_instances.iter() {
                     match field.identifier.as_str() {
@@ -173,11 +178,18 @@ fn spawn_spirit(
                                 color = c;
                             }
                         }
+                        "TriggerKnot" => {
+                            if let FieldValue::String(Some(knot_name)) =
+                                &field.value
+                            {
+                                knot = Some(knot_name.clone());
+                            }
+                        }
                         _ => {}
                     }
                 }
 
-                (max_speed, audio, color)
+                (max_speed, audio, color, knot)
             };
 
             spawning
@@ -207,6 +219,9 @@ fn spawn_spirit(
             if let Some((audio, file)) = audio {
                 spawning.insert(AudioEmitter(audio, file));
             }
+            if let Some(knot) = knot {
+                spawning.insert(TargetKnot(knot.clone()));
+            }
         }
     }
 
@@ -220,7 +235,7 @@ fn determine_sightline(
     mut commands: Commands,
     spirits: Query<
         (Entity, &Transform),
-        (With<Spirit>, Without<Collecting>, Without<Collected>),
+        (With<Spirit>),
     >,
     players: Query<(Entity, &Transform), With<PlayerControl>>,
     physics_world: PhysicsWorld,
@@ -264,7 +279,6 @@ fn spirit_avoid_player(
         (&Transform, &Spirit, &mut Velocity),
         (
             With<SpiritAvoidPlayer>,
-            Without<Collecting>,
             Without<PlayerControl>,
             With<CanSeePlayer>,
         ),
@@ -310,7 +324,6 @@ fn spirit_surrounder(
     mut spirits: Query<
         (&Transform, &Spirit, &SpiritSurrounder, &mut Velocity),
         (
-            Without<Collecting>,
             Without<PlayerControl>,
             With<CanSeePlayer>,
         ),
@@ -357,5 +370,35 @@ fn spirit_surrounder(
         }
 
         velocity_component.linear = velocity;
+    }
+}
+
+fn trigger_knot(spirits: Query<
+    (&Transform, &TargetKnot),
+    (
+        With<Spirit>,
+        Without<PlayerControl>,
+        With<CanSeePlayer>,
+    ),
+>,
+players: Query<(&Transform, &ActionState<Action>), With<PlayerControl>>,
+mut story: Option<ResMut<InkStory>>,
+mut event_writer: EventWriter<StoryEvent>,) {
+    let mut target_knot = None;
+    for (player, action) in players.iter() {
+        if action.pressed(Action::Interact) {
+            for (spirit, knot) in spirits.iter() {
+                if (player.translation - spirit.translation).length() < 100. {
+                    target_knot = Some(knot.0.clone());
+                }
+            }
+        }
+    }
+
+    if let Some(target_knot) = target_knot {
+        if let Some(story) = &mut story {
+            story.move_to(&target_knot, None);
+            story.resume_story_with_event(&mut event_writer);
+        }
     }
 }
