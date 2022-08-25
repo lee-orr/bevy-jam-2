@@ -10,7 +10,7 @@ mod states;
 mod physics;
 mod ink;
 mod interactive_narrative;
-mod theme;
+pub mod theme;
 
 use audio::*;
 use bevy::{prelude::*, render::texture::ImageSettings};

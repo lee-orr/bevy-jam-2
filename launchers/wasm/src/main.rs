@@ -3,7 +3,7 @@ use stylist::yew::styled_component;
 use stylist::{css, global_style};
 use yew::prelude::*;
 
-use my_game::LAUNCHER_TITLE;
+use my_game::theme::LAUNCHER_TITLE;
 
 fn set_window_title(title: &str) {
     web_sys::window()
