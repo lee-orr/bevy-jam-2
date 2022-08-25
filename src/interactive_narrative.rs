@@ -1,30 +1,35 @@
 use bevy::{ecs::event, prelude::*};
 
 use crate::{
+    audio::AudioSpiritVolume,
     ink::{
         ink_asset::InkAsset,
         ink_story::{InkStory, StoryEvent},
     },
     loading_state::LoadedAssets,
-    states::{States, GameMode},
-    theme::*, audio::AudioSpiritVolume,
+    states::{GameMode, States},
+    theme::*,
 };
 
 pub struct InteractiveNarrativePlugin;
 
 impl Plugin for InteractiveNarrativePlugin {
     fn build(&self, app: &mut App) {
-        app
-        .add_event::<SetCurrentKnotEvent>()
-        .add_system(set_current_knot)
-        .add_system_set(
-            SystemSet::on_enter(States::InGame).with_system(start_narrative),
-        )
-        .add_system_set(
-            SystemSet::on_update(GameMode::Conversation)
-                .with_system(display_current_narrative)
-                .with_system(button_system),
-        );
+        app.add_event::<SetCurrentKnotEvent>()
+            .add_system(set_current_knot)
+            .add_system_set(
+                SystemSet::on_enter(States::InGame)
+                    .with_system(start_narrative),
+            )
+            .add_system_set(
+                SystemSet::on_exit(States::InGame)
+                    .with_system(clear_narrative_root),
+            )
+            .add_system_set(
+                SystemSet::on_update(GameMode::Conversation)
+                    .with_system(display_current_narrative)
+                    .with_system(button_system),
+            );
     }
 }
 
@@ -37,7 +42,7 @@ struct NarrativeChoiceButton {
     choice: usize,
 }
 
-pub struct SetCurrentKnotEvent(pub String);
+pub struct SetCurrentKnotEvent(pub Option<String>);
 
 fn set_current_knot(
     mut event_reader: EventReader<SetCurrentKnotEvent>,
@@ -45,10 +50,12 @@ fn set_current_knot(
     mut event_writer: EventWriter<StoryEvent>,
     mut game_mode: ResMut<State<GameMode>>,
 ) {
-        let event = event_reader.iter().last();
-    if let (Some(story), Some(target_knot)) = (&mut story, event) {
-        bevy::log::info!("Setting story knot {}", &target_knot.0);
-        story.move_to(&target_knot.0, None);
+    let event = event_reader.iter().last();
+    if let (Some(story), Some(SetCurrentKnotEvent(Some(target_knot)))) =
+        (&mut story, event)
+    {
+        bevy::log::info!("Setting story knot {}", &target_knot);
+        story.move_to(target_knot, None);
         story.resume_story_with_event(&mut event_writer);
         game_mode.set(GameMode::Conversation);
     }
@@ -66,6 +73,15 @@ fn start_narrative(
         bevy::log::info!("Loaded story");
     } else {
         bevy::log::error!("Couldn't load ink");
+    }
+}
+
+fn clear_narrative_root(
+    mut commands: Commands,
+    narrative_root: Query<Entity, With<NarrativeDisplayRoot>>,
+) {
+    for entity in narrative_root.iter() {
+        commands.entity(entity).despawn_recursive();
     }
 }
 

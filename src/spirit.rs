@@ -451,7 +451,7 @@ fn trigger_knot(
     }
 
     if let Some(target_knot) = target_knot {
-        event_writer.send(SetCurrentKnotEvent(target_knot));
+        event_writer.send(SetCurrentKnotEvent(Some(target_knot)));
     }
 }
 

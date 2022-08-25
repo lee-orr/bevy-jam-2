@@ -1,6 +1,6 @@
-use bevy::prelude::*;
 use crate::level::SetLevelEvent;
 use crate::theme::*;
+use bevy::prelude::*;
 
 use crate::{loading_state::LoadedAssets, states::States};
 
@@ -26,46 +26,53 @@ impl Plugin for MenuPlugin {
 }
 
 fn setup(mut commands: Commands, assets: Res<LoadedAssets>) {
-    commands.spawn_bundle(NodeBundle {
-        style: Style {
-            size: Size { width: Val::Percent(100.), height: Val::Percent(100.)},
-            flex_direction: FlexDirection::ColumnReverse,
-            justify_content: JustifyContent::Center,
-            align_items: AlignItems::Center,
-            ..default()
-        },
-        color: BACKGROUIND_COLOR.into(),
-        ..default()
-    }).with_children(|p| {
-    p.spawn_bundle(TextBundle::from_section(LAUNCHER_TITLE, TextStyle {
-        font: assets.font.clone(),
-        font_size: 150.,
-        color: TEXT_COLOR.into()
-    }));
-    p
-        .spawn_bundle(ButtonBundle {
+    commands
+        .spawn_bundle(NodeBundle {
             style: Style {
-                padding: UiRect::all(Val::Px(20.)),
-                // horizontally center child text
+                size: Size {
+                    width: Val::Percent(100.),
+                    height: Val::Percent(100.),
+                },
+                flex_direction: FlexDirection::ColumnReverse,
                 justify_content: JustifyContent::Center,
-                // vertically center child text
                 align_items: AlignItems::Center,
                 ..default()
             },
-            color: NORMAL_BUTTON.into(),
+            color: BACKGROUIND_COLOR.into(),
             ..default()
         })
-        .with_children(|parent| {
-            parent.spawn_bundle(TextBundle::from_section(
-                "Start Game",
+        .with_children(|p| {
+            p.spawn_bundle(TextBundle::from_section(
+                LAUNCHER_TITLE,
                 TextStyle {
                     font: assets.font.clone(),
-                    font_size: 40.0,
+                    font_size: 150.,
                     color: TEXT_COLOR.into(),
                 },
             ));
+            p.spawn_bundle(ButtonBundle {
+                style: Style {
+                    padding: UiRect::all(Val::Px(20.)),
+                    // horizontally center child text
+                    justify_content: JustifyContent::Center,
+                    // vertically center child text
+                    align_items: AlignItems::Center,
+                    ..default()
+                },
+                color: NORMAL_BUTTON.into(),
+                ..default()
+            })
+            .with_children(|parent| {
+                parent.spawn_bundle(TextBundle::from_section(
+                    "Start Game",
+                    TextStyle {
+                        font: assets.font.clone(),
+                        font_size: 40.0,
+                        color: TEXT_COLOR.into(),
+                    },
+                ));
+            });
         });
-    });
 }
 
 fn display_loading(mut commands: Commands, assets: Res<LoadedAssets>) {

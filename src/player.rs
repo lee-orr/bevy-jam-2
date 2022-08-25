@@ -101,6 +101,7 @@ fn spawn_player(
             let (move_speed, rotate_speed) = {
                 let mut move_speed = 10f32;
                 let mut rotate_speed = 10f32;
+                let mut set_knot = false;
 
                 for field in instance.field_instances.iter() {
                     bevy::log::info!(
@@ -124,12 +125,18 @@ fn spawn_player(
                         "LevelStartKnot" => {
                             if let FieldValue::String(Some(knot)) = &field.value
                             {
-                                event_writer
-                                    .send(SetCurrentKnotEvent(knot.clone()));
+                                event_writer.send(SetCurrentKnotEvent(Some(
+                                    knot.clone(),
+                                )));
+                                set_knot = true;
                             }
                         }
                         _ => {}
                     }
+                }
+
+                if !set_knot {
+                    event_writer.send(SetCurrentKnotEvent(None));
                 }
 
                 (move_speed, rotate_speed * PI / 180.)
