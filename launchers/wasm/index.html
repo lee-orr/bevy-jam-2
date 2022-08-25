@@ -3,31 +3,15 @@
 
 <head>
     <!-- Title -->
-    <title>Loading...</title>
+    <title>The Curious Incident of the Lab in the Forest</title>
 
     <!-- Meta -->
     <meta charset=utf-8 />
     <meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no" />
-
-    <!-- OpenGraph -->
-    <meta property=og:title content="Your Title" />
-    <meta property=og:description content="Your description" />
-    <meta property=og:url content="https://kurbos.github.io/bevy-shell-template" />
-    <meta property=og:image content="/static/banner.png" />
-
-    <!-- Mobile -->
-    <meta name=HandheldFriendly content="True" />
-    <meta name=mobile-web-app-capable content="yes" />
-    <meta name=apple-mobile-web-app-capable content="yes" />
-
-    <!-- Links -->
-    <link rel=canonical href="https://kurbos.github.io/bevy-shell-template/" />
-    <link rel=icon type=image/png href=static/favicon.png>
-
-    <!-- Trunk Directives -->
-    <link rel=copy-dir data-trunk href="static/" />
-    <link rel=copy-dir data-trunk href="assets/" />
-    <link rel=rust data-trunk />
+    <script type="module">
+        import init from './bevy_game.js'
+        init()
+    </script>
 </head>
 
 <body>

@@ -47,7 +47,7 @@ pub fn app() -> App {
         .add_plugin(AudioPlayerPlugin)
         .add_plugin(CameraPlugin)
         .add_plugin(PhysicsPlugin::default())
-         .add_plugin(WorldInspectorPlugin::new())
+        // .add_plugin(WorldInspectorPlugin::new())
         .add_plugin(InkPlugin)
         .add_plugin(InteractiveNarrativePlugin);
     app
