@@ -34,6 +34,7 @@ jobs:
           cd launchers/wasm && cargo build --release --target wasm32-unknown-unknown
       - name: Wasm Bindgen
         run: |
+          cd launchers/wasm
           wasm-bindgen --no-typescript --out-name bevy_game --out-dir dist --target web ../../target/wasm32-unknown-unknown/release/wasm-launcher.wasm
           cp -r ./static ./dist/
           cp -r ../../assets ./dist/
