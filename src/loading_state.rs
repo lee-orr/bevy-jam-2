@@ -27,4 +27,7 @@ pub struct LoadedAssets {
 
     #[asset(path = "test.ink")]
     pub test_ink: Handle<InkAsset>,
+
+    #[asset(path = "characters.png")]
+    pub character_atlas: Handle<Image>,
 }

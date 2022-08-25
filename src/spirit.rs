@@ -24,7 +24,8 @@ impl Plugin for SpiritPlugin {
                 SystemSet::on_update(States::InGame)
                     .with_system(spirit_avoid_player)
                     .with_system(spirit_surrounder)
-                    .with_system(determine_sightline),
+                    .with_system(determine_sightline)
+                    .with_system(animate_spirits),
             )
             .add_system_set(
                 SystemSet::on_update(GameMode::Exploration)
@@ -68,6 +69,16 @@ impl Default for AwaitingEmitters {
     }
 }
 
+pub struct CharacterAtlas {
+    pub atlas: Handle<TextureAtlas>
+}
+
+#[derive(Component)]
+pub struct SpiritAnimationIndices {
+    pub start: usize,
+    pub len: usize
+}
+
 fn spirits_ready(
     mut awaiting_emitters: ResMut<AwaitingEmitters>,
     mut app_state: ResMut<State<States>>,
@@ -108,8 +119,20 @@ fn spawn_spirit(
     mut awaiting_emitters: ResMut<AwaitingEmitters>,
     assets: Res<LoadedAssets>,
     asset_server: Res<AssetServer>,
+    texture_atlas: Option<Res<CharacterAtlas>>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     entities: Query<(&EntityInstance, &Transform), Added<EntityInstance>>,
 ) {
+    let atlas_handle = match texture_atlas {
+        Some(atlas) => atlas.atlas.clone(),
+        None => {
+            let atlas = TextureAtlas::from_grid(assets.character_atlas.clone(), Vec2::ONE * 64., 16, 16);
+            let handle = texture_atlases.add(atlas);
+            commands.insert_resource(CharacterAtlas { atlas: handle.clone()});
+            handle
+        }
+    };
+
     let mut emitters: Vec<Handle<AudioSource>> = vec![];
     let mut found_entites = false;
     for (instance, transform) in entities.iter() {
@@ -151,11 +174,13 @@ fn spawn_spirit(
         };
         if let Some(entity) = spawning {
             let mut spawning = commands.entity(entity);
-            let (max_speed, audio, color, knot) = {
+            let (max_speed, audio, color, knot, animation_start, animation_end) = {
                 let mut max_speed = 9.5f32;
                 let mut audio = None;
                 let mut color = Color::WHITE;
                 let mut knot = None;
+                let mut animation_start = 0usize;
+                let mut animation_end = 0usize;
 
                 for field in instance.field_instances.iter() {
                     match field.identifier.as_str() {
@@ -189,21 +214,38 @@ fn spawn_spirit(
                                 knot = Some(knot_name.clone());
                             }
                         }
+                        "AnimationStart" => {
+                            if let FieldValue::Int(Some(frame)) = field.value
+                            {
+                                animation_start = frame as usize;
+                            }
+                        }
+                        "AnimationEnd" => {
+                            if let FieldValue::Int(Some(frame)) = field.value
+                            {
+                                animation_end = frame as usize;
+                            }
+                        }
                         _ => {}
                     }
                 }
 
-                (max_speed, audio, color, knot)
+                (max_speed, audio, color, knot, animation_start, animation_end)
             };
 
             spawning
-                .insert_bundle(MaterialMesh2dBundle {
-                    mesh: meshes
-                        .add(Mesh::from(shape::Circle::default()))
-                        .into(),
-                    material: materials.add(ColorMaterial::from(color)),
-                    transform: transform.with_scale(Vec3::ONE * 6.),
+                .insert_bundle(SpriteSheetBundle {
+                    sprite: TextureAtlasSprite {
+                        index: animation_start.clone(),
+                        ..default()
+                    },
+                    texture_atlas: atlas_handle.clone(),
+                    transform: transform.with_scale(Vec3::ONE * 0.8),
                     ..default()
+                })
+                .insert(SpiritAnimationIndices {
+                    len: animation_end.checked_sub(animation_start).unwrap_or(1) + 1,
+                    start: animation_start,
                 })
                 .insert(Spirit(max_speed))
                 .insert(RigidBody::Dynamic)
@@ -392,5 +434,14 @@ fn trigger_knot(
 
     if let Some(target_knot) = target_knot {
             event_writer.send(SetCurrentKnotEvent(target_knot));
+    }
+}
+
+fn animate_spirits(mut spirits: Query<(&mut TextureAtlasSprite, &SpiritAnimationIndices), With<Spirit>>, 
+time: Res<Time>) {
+    let time = (time.seconds_since_startup() * 5.) as usize;
+    for (mut sprite, animation) in spirits.iter_mut() {
+        let current_index = animation.start + (time % animation.len);
+        sprite.index = current_index;
     }
 }
