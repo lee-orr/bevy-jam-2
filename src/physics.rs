@@ -4,5 +4,6 @@ use heron::PhysicsLayer;
 pub enum GameCollisionLayers {
     World,
     Player,
-    Spirit
+    Spirit,
+    Portal,
 }

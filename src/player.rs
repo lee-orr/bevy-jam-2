@@ -9,6 +9,7 @@ use leafwing_input_manager::prelude::*;
 use crate::{
     ink::ink_story::{InkStory, StoryEvent},
     interactive_narrative::SetCurrentKnotEvent,
+    level::LevelElement,
     loading_state::LoadedAssets,
     physics::GameCollisionLayers,
     spirit::CharacterAtlas,
@@ -144,22 +145,25 @@ fn spawn_player(
                     transform: transform.with_scale(Vec3::ONE * 0.5),
                     ..default()
                 })
+                .insert(LevelElement)
                 .insert(PlayerControl {
                     move_speed,
                     rotate_speed,
                 })
                 .with_children(|parent| {
-                    parent.spawn_bundle(SpriteSheetBundle {
-                        sprite: TextureAtlasSprite {
-                            index: CASS_START,
+                    parent
+                        .spawn_bundle(SpriteSheetBundle {
+                            sprite: TextureAtlasSprite {
+                                index: CASS_START,
+                                ..default()
+                            },
+                            texture_atlas: atlas_handle.clone(),
+                            transform: Transform::default()
+                                .with_translation(Vec3::new(-3., -11.5, 1.))
+                                .with_scale(Vec3::new(0.8, 0.8, 0.8)),
                             ..default()
-                        },
-                        texture_atlas: atlas_handle.clone(),
-                        transform: Transform::default()
-                            .with_translation(Vec3::new(-3., -11.5, 1.))
-                            .with_scale(Vec3::new(0.8, 0.8, 0.8)),
-                        ..default()
-                    }).insert(Companion);
+                        })
+                        .insert(Companion);
                 })
                 .insert(RigidBody::Dynamic)
                 .insert(CollisionShape::Sphere { radius: 16. })
@@ -298,12 +302,12 @@ fn animate_companion(
 ) {
     let time = (time.seconds_since_startup() * 5.) as usize;
     for (mut sprite, mut transform) in companions.iter_mut() {
-        let current_index =
-            CASS_START + (time % CASS_LEN);
+        let current_index = CASS_START + (time % CASS_LEN);
         sprite.index = current_index;
         let position_horizontal = ((time as f32) / 3.).sin() * 6.;
         let position_vertical = ((time as f32) / 4.).cos() * 3.;
 
-        transform.translation = Vec3::new(-3., -11.5, 1.) + Vec3::new(position_horizontal, position_vertical, 0.);
+        transform.translation = Vec3::new(-3., -11.5, 1.)
+            + Vec3::new(position_horizontal, position_vertical, 0.);
     }
 }

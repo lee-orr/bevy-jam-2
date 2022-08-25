@@ -1898,7 +1898,10 @@
 							"height": 64,
 							"defUid": 71,
 							"px": [288,96],
-							"fieldInstances": [{ "__identifier": "TargetLevel", "__value": null, "__type": "String", "__tile": null, "defUid": 72, "realEditorValues": [] }]
+							"fieldInstances": [{ "__identifier": "TargetLevel", "__value": "Level_0", "__type": "String", "__tile": null, "defUid": 72, "realEditorValues": [{
+								"id": "V_String",
+								"params": ["Level_0"]
+							}] }]
 						}
 					]
 				},

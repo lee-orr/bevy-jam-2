@@ -9,10 +9,12 @@ use leafwing_input_manager::prelude::ActionState;
 use crate::{
     audio::AudioEmitter,
     ink::ink_story::{InkStory, StoryEvent},
+    interactive_narrative::SetCurrentKnotEvent,
+    level::LevelElement,
     loading_state::LoadedAssets,
     physics::GameCollisionLayers,
     player::{Action, PlayerControl},
-    states::{GameMode, States}, interactive_narrative::SetCurrentKnotEvent,
+    states::{GameMode, States},
 };
 
 pub struct SpiritPlugin;
@@ -70,13 +72,13 @@ impl Default for AwaitingEmitters {
 }
 
 pub struct CharacterAtlas {
-    pub atlas: Handle<TextureAtlas>
+    pub atlas: Handle<TextureAtlas>,
 }
 
 #[derive(Component)]
 pub struct SpiritAnimationIndices {
     pub start: usize,
-    pub len: usize
+    pub len: usize,
 }
 
 fn spirits_ready(
@@ -126,9 +128,16 @@ fn spawn_spirit(
     let atlas_handle = match texture_atlas {
         Some(atlas) => atlas.atlas.clone(),
         None => {
-            let atlas = TextureAtlas::from_grid(assets.character_atlas.clone(), Vec2::ONE * 64., 16, 16);
+            let atlas = TextureAtlas::from_grid(
+                assets.character_atlas.clone(),
+                Vec2::ONE * 64.,
+                16,
+                16,
+            );
             let handle = texture_atlases.add(atlas);
-            commands.insert_resource(CharacterAtlas { atlas: handle.clone()});
+            commands.insert_resource(CharacterAtlas {
+                atlas: handle.clone(),
+            });
             handle
         }
     };
@@ -215,14 +224,12 @@ fn spawn_spirit(
                             }
                         }
                         "AnimationStart" => {
-                            if let FieldValue::Int(Some(frame)) = field.value
-                            {
+                            if let FieldValue::Int(Some(frame)) = field.value {
                                 animation_start = frame as usize;
                             }
                         }
                         "AnimationEnd" => {
-                            if let FieldValue::Int(Some(frame)) = field.value
-                            {
+                            if let FieldValue::Int(Some(frame)) = field.value {
                                 animation_end = frame as usize;
                             }
                         }
@@ -230,7 +237,14 @@ fn spawn_spirit(
                     }
                 }
 
-                (max_speed, audio, color, knot, animation_start, animation_end)
+                (
+                    max_speed,
+                    audio,
+                    color,
+                    knot,
+                    animation_start,
+                    animation_end,
+                )
             };
 
             spawning
@@ -243,8 +257,12 @@ fn spawn_spirit(
                     transform: transform.with_scale(Vec3::ONE * 0.5),
                     ..default()
                 })
+                .insert(LevelElement)
                 .insert(SpiritAnimationIndices {
-                    len: animation_end.checked_sub(animation_start).unwrap_or(1) + 1,
+                    len: animation_end
+                        .checked_sub(animation_start)
+                        .unwrap_or(1)
+                        + 1,
                     start: animation_start,
                 })
                 .insert(Spirit(max_speed))
@@ -433,12 +451,17 @@ fn trigger_knot(
     }
 
     if let Some(target_knot) = target_knot {
-            event_writer.send(SetCurrentKnotEvent(target_knot));
+        event_writer.send(SetCurrentKnotEvent(target_knot));
     }
 }
 
-fn animate_spirits(mut spirits: Query<(&mut TextureAtlasSprite, &SpiritAnimationIndices), With<Spirit>>, 
-time: Res<Time>) {
+fn animate_spirits(
+    mut spirits: Query<
+        (&mut TextureAtlasSprite, &SpiritAnimationIndices),
+        With<Spirit>,
+    >,
+    time: Res<Time>,
+) {
     let time = (time.seconds_since_startup() * 5.) as usize;
     for (mut sprite, animation) in spirits.iter_mut() {
         let current_index = animation.start + (time % animation.len);
