@@ -240,7 +240,7 @@ fn spawn_spirit(
                         ..default()
                     },
                     texture_atlas: atlas_handle.clone(),
-                    transform: transform.with_scale(Vec3::ONE * 0.8),
+                    transform: transform.with_scale(Vec3::ONE * 0.5),
                     ..default()
                 })
                 .insert(SpiritAnimationIndices {
@@ -249,7 +249,7 @@ fn spawn_spirit(
                 })
                 .insert(Spirit(max_speed))
                 .insert(RigidBody::Dynamic)
-                .insert(CollisionShape::Sphere { radius: 6. })
+                .insert(CollisionShape::Sphere { radius: 16. })
                 .insert(PhysicMaterial {
                     restitution: 0.9,
                     friction: 0.1,
