@@ -23,7 +23,7 @@ use menu::*;
 use player::*;
 use spirit::*;
 use interactive_narrative::*;
-use states::States;
+use states::{States, GameMode};
 use theme::*;
 
 pub fn app() -> App {
@@ -37,6 +37,7 @@ pub fn app() -> App {
             ..Default::default()
         })
         .add_state(States::Loading)
+        .add_state(GameMode::None)
         .add_plugins(DefaultPlugins)
         .add_plugin(LevelPlugin)
         .add_plugin(LoadingPlugin)

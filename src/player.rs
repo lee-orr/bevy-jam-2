@@ -6,7 +6,7 @@ use bevy_inspector_egui::{Inspectable, RegisterInspectable};
 use leafwing_input_manager::prelude::*;
 use heron::prelude::*;
 
-use crate::{states::States, physics::GameCollisionLayers, ink::ink_story::{InkStory, StoryEvent}};
+use crate::{states::{States, GameMode}, physics::GameCollisionLayers, ink::ink_story::{InkStory, StoryEvent}, interactive_narrative::SetCurrentKnotEvent};
 
 pub struct PlayerPlugin;
 
@@ -15,9 +15,12 @@ impl Plugin for PlayerPlugin {
         app.add_plugin(InputManagerPlugin::<Action>::default())
             .add_system_set(
                 SystemSet::on_update(States::InGame)
-                    .with_system(setup_player_control)
-                    .with_system(move_player)
                     .with_system(spawn_player),
+            )
+            .add_system_set(
+                SystemSet::on_update(GameMode::Exploration)
+                .with_system(setup_player_control)
+                .with_system(move_player)
             )
             .register_type::<PlayerControl>();
     }
@@ -53,8 +56,7 @@ fn spawn_player(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     entities: Query<(&EntityInstance, &Transform), Added<EntityInstance>>,
-    mut story: Option<ResMut<InkStory>>,
-    mut event_writer: EventWriter<StoryEvent>,
+    mut event_writer: EventWriter<SetCurrentKnotEvent>,
 ) {
     for (instance, transform) in entities.iter() {
         if instance.identifier == "Player" {
@@ -79,11 +81,7 @@ fn spawn_player(
                         }
                         "LevelStartKnot" => {
                             if let FieldValue::String(Some(knot)) = &field.value {
-                                if let Some(story) = &mut story {
-                                    bevy::log::info!("Setting story knot {}", &knot);
-                                    story.move_to(knot, None);
-                                    story.resume_story_with_event(&mut event_writer);
-                                }
+                                    event_writer.send(SetCurrentKnotEvent(knot.clone()));
                             }
                         }
                         _ => {}

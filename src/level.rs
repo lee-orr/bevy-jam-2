@@ -1,6 +1,6 @@
 use crate::loading_state::LoadedAssets;
 use crate::physics::GameCollisionLayers;
-use crate::states::States;
+use crate::states::{States, GameMode};
 use bevy::prelude::*;
 use bevy_ecs_ldtk::ldtk::TileInstance;
 use bevy_ecs_ldtk::prelude::*;
@@ -14,7 +14,10 @@ impl Plugin for LevelPlugin {
         app.add_plugin(LdtkPlugin)
             .add_event::<SetLevelEvent>()
             .insert_resource(LevelSelection::Identifier("Level_0".into()))
-            .insert_resource(LdtkSettings { level_background: LevelBackground::Nonexistent, ..default()})
+            .insert_resource(LdtkSettings {
+                level_background: LevelBackground::Nonexistent,
+                ..default()
+            })
             .add_system(set_level)
             .add_system_set(
                 SystemSet::on_enter(States::LoadingLevel)
@@ -29,39 +32,59 @@ impl Plugin for LevelPlugin {
 
 pub struct SetLevelEvent(pub String);
 
-fn set_level(mut commands: Commands, mut events: EventReader<SetLevelEvent>, 
-    mut app_state: ResMut<State<States>>,) {
-        
+fn set_level(
+    mut commands: Commands,
+    mut events: EventReader<SetLevelEvent>,
+    mut app_state: ResMut<State<States>>,
+    mut game_mode: ResMut<State<GameMode>>,
+) {
     let event = events.iter().last();
 
     if let Some(SetLevelEvent(level)) = event {
         commands.insert_resource(LevelSelection::Identifier(level.into()));
         app_state.set(States::LoadingLevel);
+        game_mode.set(GameMode::None);
     }
-    }
+}
 
 #[derive(Component)]
 #[component(storage = "SparseSet")]
 pub struct LevelElement;
 
-fn start_level(mut commands: Commands, assets: Res<LoadedAssets>, elements: Query<Entity, With<LevelElement>>) {
+fn start_level(
+    mut commands: Commands,
+    assets: Res<LoadedAssets>,
+    elements: Query<Entity, With<LevelElement>>,
+) {
     for entity in elements.iter() {
         commands.entity(entity).despawn_recursive();
     }
     bevy::log::info!("Loading level");
-    commands.spawn_bundle(LdtkWorldBundle {
-        ldtk_handle: assets.test_level.clone(),
-        ..Default::default()
-    }).insert(LevelElement);
+    commands
+        .spawn_bundle(LdtkWorldBundle {
+            ldtk_handle: assets.test_level.clone(),
+            ..Default::default()
+        })
+        .insert(LevelElement);
 }
 
-fn build_walls(mut commands: Commands, cells: Query<(Entity, &IntGridCell), Added<IntGridCell>>) {
+fn build_walls(
+    mut commands: Commands,
+    cells: Query<(Entity, &IntGridCell), Added<IntGridCell>>,
+) {
     for (entity, cell) in cells.iter() {
         if cell.value == 2 {
-            commands.entity(entity)
+            commands
+                .entity(entity)
                 .insert(RigidBody::Static)
-                .insert(CollisionShape::Cuboid { half_extends: Vec3::new(36., 36., 0.), border_radius: None })
-                .insert(CollisionLayers::all_masks::<GameCollisionLayers>().with_group(GameCollisionLayers::World));
+                .insert(CollisionShape::Cuboid {
+                    half_extends: Vec3::new(36., 36., 0.),
+                    border_radius: None,
+                })
+                .insert(
+                    CollisionLayers::all_masks::<GameCollisionLayers>()
+                        .with_group(GameCollisionLayers::World),
+                );
         }
     }
 }

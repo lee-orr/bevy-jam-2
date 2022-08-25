@@ -6,7 +6,7 @@ use crate::{
         ink_story::{InkStory, StoryEvent},
     },
     loading_state::LoadedAssets,
-    states::States,
+    states::{States, GameMode},
     theme::*, audio::AudioSpiritVolume,
 };
 
@@ -14,11 +14,14 @@ pub struct InteractiveNarrativePlugin;
 
 impl Plugin for InteractiveNarrativePlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(
+        app
+        .add_event::<SetCurrentKnotEvent>()
+        .add_system(set_current_knot)
+        .add_system_set(
             SystemSet::on_enter(States::InGame).with_system(start_narrative),
         )
         .add_system_set(
-            SystemSet::on_update(States::InGame)
+            SystemSet::on_update(GameMode::Conversation)
                 .with_system(display_current_narrative)
                 .with_system(button_system),
         );
@@ -32,6 +35,23 @@ struct NarrativeDisplayRoot;
 #[derive(Component)]
 struct NarrativeChoiceButton {
     choice: usize,
+}
+
+pub struct SetCurrentKnotEvent(pub String);
+
+fn set_current_knot(
+    mut event_reader: EventReader<SetCurrentKnotEvent>,
+    mut story: Option<ResMut<InkStory>>,
+    mut event_writer: EventWriter<StoryEvent>,
+    mut game_mode: ResMut<State<GameMode>>,
+) {
+        let event = event_reader.iter().last();
+    if let (Some(story), Some(target_knot)) = (&mut story, event) {
+        bevy::log::info!("Setting story knot {}", &target_knot.0);
+        story.move_to(&target_knot.0, None);
+        story.resume_story_with_event(&mut event_writer);
+        game_mode.set(GameMode::Conversation);
+    }
 }
 
 fn start_narrative(
@@ -55,6 +75,7 @@ fn display_current_narrative(
     narrative_root: Query<Entity, With<NarrativeDisplayRoot>>,
     assets: Res<LoadedAssets>,
     mut audio_spirit_volume: ResMut<AudioSpiritVolume>,
+    mut game_mode: ResMut<State<GameMode>>,
 ) {
     let event = events.iter().last();
 
@@ -98,6 +119,7 @@ fn display_current_narrative(
                             }
                             "play" => {
                                 trigger_play = true;
+                                game_mode.set(GameMode::Exploration);
                             }
                             _ => {}
                         }

@@ -8,10 +8,11 @@ use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
     audio::AudioEmitter,
+    ink::ink_story::{InkStory, StoryEvent},
     loading_state::LoadedAssets,
     physics::GameCollisionLayers,
-    player::{PlayerControl, Action},
-    states::States, ink::ink_story::{StoryEvent, InkStory},
+    player::{Action, PlayerControl},
+    states::{GameMode, States}, interactive_narrative::SetCurrentKnotEvent,
 };
 
 pub struct SpiritPlugin;
@@ -23,7 +24,10 @@ impl Plugin for SpiritPlugin {
                 SystemSet::on_update(States::InGame)
                     .with_system(spirit_avoid_player)
                     .with_system(spirit_surrounder)
-                    .with_system(determine_sightline)
+                    .with_system(determine_sightline),
+            )
+            .add_system_set(
+                SystemSet::on_update(GameMode::Exploration)
                     .with_system(trigger_knot),
             )
             .add_system_set(
@@ -111,7 +115,7 @@ fn spawn_spirit(
     for (instance, transform) in entities.iter() {
         found_entites = true;
         let spawning = match instance.identifier.as_str() {
-            "StationarySpirit" => {Some(commands.spawn().id())},
+            "StationarySpirit" => Some(commands.spawn().id()),
             "RandomWalkSpirit" => {
                 Some(commands.spawn().insert(SpiritAvoidPlayer).id())
             }
@@ -233,10 +237,7 @@ fn spawn_spirit(
 
 fn determine_sightline(
     mut commands: Commands,
-    spirits: Query<
-        (Entity, &Transform),
-        (With<Spirit>),
-    >,
+    spirits: Query<(Entity, &Transform), (With<Spirit>)>,
     players: Query<(Entity, &Transform), With<PlayerControl>>,
     physics_world: PhysicsWorld,
 ) {
@@ -323,10 +324,7 @@ fn spirit_avoid_player(
 fn spirit_surrounder(
     mut spirits: Query<
         (&Transform, &Spirit, &SpiritSurrounder, &mut Velocity),
-        (
-            Without<PlayerControl>,
-            With<CanSeePlayer>,
-        ),
+        (Without<PlayerControl>, With<CanSeePlayer>),
     >,
     players: Query<&Transform, With<PlayerControl>>,
     time: Res<Time>,
@@ -373,17 +371,14 @@ fn spirit_surrounder(
     }
 }
 
-fn trigger_knot(spirits: Query<
-    (&Transform, &TargetKnot),
-    (
-        With<Spirit>,
-        Without<PlayerControl>,
-        With<CanSeePlayer>,
-    ),
->,
-players: Query<(&Transform, &ActionState<Action>), With<PlayerControl>>,
-mut story: Option<ResMut<InkStory>>,
-mut event_writer: EventWriter<StoryEvent>,) {
+fn trigger_knot(
+    spirits: Query<
+        (&Transform, &TargetKnot),
+        (With<Spirit>, Without<PlayerControl>, With<CanSeePlayer>),
+    >,
+    players: Query<(&Transform, &ActionState<Action>), With<PlayerControl>>,
+    mut event_writer: EventWriter<SetCurrentKnotEvent>,
+) {
     let mut target_knot = None;
     for (player, action) in players.iter() {
         if action.pressed(Action::Interact) {
@@ -396,9 +391,6 @@ mut event_writer: EventWriter<StoryEvent>,) {
     }
 
     if let Some(target_knot) = target_knot {
-        if let Some(story) = &mut story {
-            story.move_to(&target_knot, None);
-            story.resume_story_with_event(&mut event_writer);
-        }
+            event_writer.send(SetCurrentKnotEvent(target_knot));
     }
 }

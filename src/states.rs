@@ -5,3 +5,10 @@ pub enum States {
     LoadingLevel,
     InGame,
 }
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+pub enum GameMode {
+    None,
+    Exploration,
+    Conversation
+}
