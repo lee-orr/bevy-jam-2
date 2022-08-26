@@ -1,3 +1,4 @@
+use crate::interactive_narrative::SetCurrentKnotEvent;
 use crate::loading_state::LoadedAssets;
 use crate::physics::GameCollisionLayers;
 use crate::states::{GameMode, States};
@@ -80,7 +81,10 @@ pub struct ActivationEvent(pub bool, pub String);
 pub struct NamedElement(pub String);
 
 #[derive(Component)]
-pub struct Portal(String);
+pub enum Portal {
+    Level(String),
+    Knot(String)
+}
 
 fn start_level(
     mut commands: Commands,
@@ -122,6 +126,7 @@ fn deactivate_elements(
     elements: Query<Entity, With<DeactivateElement>>,
 ) {
     for entity in elements.iter() {
+        bevy::log::info!("Deactivated entity");
         commands.entity(entity).remove::<DeactivateElement>();
         commands.entity(entity).remove::<ActiveElement>();
     }
@@ -131,6 +136,7 @@ fn set_activation(mut commands: Commands, elements: Query<(Entity, &NamedElement
     for event in event_reader.iter() {
         bevy::log::info!("Activation: {} {}", &event.0, &event.1);
         for (entity, name) in elements.iter() {
+            bevy::log::info!("Entity name {}", &name.0);
             if name.0 == event.1 {
                 bevy::log::info!("Found entity");
                 if event.0 {
@@ -177,17 +183,28 @@ fn build_portals(
             let mut target_level = None;
             let mut active = false;
             let mut id = None;
+            let mut target_knot =  None;
+            let mut has_target = false;
+            let mut solid = true;
 
             for field in instance.field_instances.iter() {
                 match field.identifier.as_str() {
                     "TargetLevel" => {
                         if let FieldValue::String(Some(level)) = &field.value {
+                            has_target = true;
                             target_level = Some(level.clone());
                         }
                     }
+                    "TargetKnot" => {
+                        if let FieldValue::String(Some(knot)) = &field.value {
+                            has_target = true;
+                            target_knot = Some(knot.clone());
+                        }
+                    }
                     "EntityId" => {
-                        if let FieldValue::String(Some(level)) = &field.value {
-                            id = Some(level.clone());
+                        bevy::log::info!("Checking for portal name {:?}", &field.value);
+                        if let FieldValue::String(Some(name)) = &field.value {
+                            id = Some(name.clone());
                         }
                     }
                     "StartEnabled" => {
@@ -195,19 +212,23 @@ fn build_portals(
                             active = *start_enabled;
                         }
                     }
+                    "Solid" => {
+                        if let FieldValue::Bool(is_solid) = &field.value {
+                            solid = *is_solid;
+                        }
+                    }
                     _ => {}
                 }
             }
 
-            if let Some(level) = target_level {
+            if has_target {
                 let mut entity_commands = commands.entity(entity);
 
                 entity_commands
-                    .insert(Portal(level))
                     .insert(LevelElement)
-                    .insert(RigidBody::Static)
+                    .insert(if solid { RigidBody::Static } else { RigidBody::Sensor })
                     .insert(CollisionShape::Cuboid {
-                        half_extends: Vec3::new(32., 32., 0.),
+                        half_extends: Vec3::new((instance.height as f32)/2., (instance.width as f32)/2., 0.),
                         border_radius: None,
                     })
                     .insert(
@@ -219,7 +240,16 @@ fn build_portals(
                     entity_commands.insert(ActiveElement);
                 }
                 if let Some(id) = id {
+                    bevy::log::info!("Created named portal  {}", &id);
                     entity_commands.insert(NamedElement(id));
+                } else {
+                    bevy::log::info!("Created un-named portal");
+                }
+
+                if let Some(level) = target_level {
+                    entity_commands.insert(Portal::Level(level));
+                } else if let Some(knot) = target_knot {
+                    entity_commands.insert(Portal::Knot(knot));
                 }
             }
         }
@@ -230,6 +260,7 @@ fn trigger_portal(
     mut collisions: EventReader<CollisionEvent>,
     portals: Query<&Portal, With<ActiveElement>>,
     mut set_level: EventWriter<SetLevelEvent>,
+    mut set_knot: EventWriter<SetCurrentKnotEvent>,
 ) {
     for event in collisions.iter().filter(|e| e.is_started()) {
         let (entity_1, entity_2) = event.rigid_body_entities();
@@ -238,7 +269,10 @@ fn trigger_portal(
             && layers_2.contains_group(GameCollisionLayers::Portal)
         {
             if let Ok(portal) = portals.get(entity_2) {
-                set_level.send(SetLevelEvent(portal.0.clone()));
+                match portal {
+                    Portal::Level(level) => set_level.send(SetLevelEvent(level.clone())),
+                    Portal::Knot(knot) => set_knot.send(SetCurrentKnotEvent(Some(knot.clone()))),
+                }
                 break;
             }
         }
@@ -246,7 +280,10 @@ fn trigger_portal(
             && layers_1.contains_group(GameCollisionLayers::Portal)
         {
             if let Ok(portal) = portals.get(entity_1) {
-                set_level.send(SetLevelEvent(portal.0.clone()));
+                match portal {
+                    Portal::Level(level) => set_level.send(SetLevelEvent(level.clone())),
+                    Portal::Knot(knot) => set_knot.send(SetCurrentKnotEvent(Some(knot.clone()))),
+                }
                 break;
             }
         }

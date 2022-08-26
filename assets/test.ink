@@ -16,7 +16,14 @@ What is this place? #cass
 -> play_loop
 
 == tutorial ==
-The tutorial is here...
+We're close! But I can't see anything here... #cass
+* [What should I do?]
+    I think it's a... memory...
+    Try following the sound. When you think we're right next to it, let me know
+    (by pressing SPACE or ENTER) #deactivate:tutorial_trigger
+* [I know what to do!]
+    Ok - I'm right behind you! #cass #deactivate:tutorial_trigger
+-
 -> play_loop
 
 == encounter_pontersons_essence ==
