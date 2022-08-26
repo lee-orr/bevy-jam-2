@@ -1,6 +1,6 @@
 use std::f32::consts::PI;
 
-use crate::{states::States};
+use crate::{states::States, level::ClearLevelElement};
 use bevy::prelude::*;
 use bevy_kira_audio::prelude::*;
 
@@ -18,7 +18,8 @@ impl Plugin for AudioPlayerPlugin {
             .add_system_set(
                 SystemSet::on_update(States::InGame)
                     .with_system(adjust_audio_loop_position_and_volume)
-            );
+            )
+            .add_system_to_stage(CoreStage::PostUpdate, despawn_audio);
     }
 }
 
@@ -90,3 +91,14 @@ fn adjust_audio_loop_position_and_volume(
         }
     }
 }
+
+fn despawn_audio(
+    mut instances: ResMut<Assets<AudioInstance>>,
+    emitters: Query<&AudioInstanceHandle, Added<ClearLevelElement>> ) {
+        for handle in emitters.iter() {
+            if let Some(instance) = instances.get_mut(&handle.0) {
+                instance.stop(AudioTween::default());
+                instances.remove(&handle.0);
+            }
+        }
+    }

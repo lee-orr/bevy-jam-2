@@ -31,7 +31,8 @@ impl Plugin for LevelPlugin {
                 SystemSet::on_update(States::LoadingLevel)
                     .with_system(build_walls)
                     .with_system(build_portals),
-            );
+            )
+            .add_system_to_stage(CoreStage::Last, clear_level_elements);
     }
 }
 
@@ -57,6 +58,10 @@ fn set_level(
 pub struct LevelElement;
 
 #[derive(Component)]
+#[component(storage = "SparseSet")]
+pub struct ClearLevelElement;
+
+#[derive(Component)]
 pub struct Portal(String);
 
 fn start_level(
@@ -65,7 +70,7 @@ fn start_level(
     elements: Query<Entity, With<LevelElement>>,
 ) {
     for entity in elements.iter() {
-        commands.entity(entity).despawn_recursive();
+        commands.entity(entity).insert(ClearLevelElement);
     }
     bevy::log::info!("Loading level");
     commands
@@ -74,6 +79,13 @@ fn start_level(
             ..Default::default()
         })
         .insert(LevelElement);
+}
+
+fn clear_level_elements(mut commands: Commands, elements: Query<Entity, With<ClearLevelElement>>) {
+    
+    for entity in elements.iter() {
+        commands.entity(entity).despawn_recursive();
+    }
 }
 
 fn build_walls(

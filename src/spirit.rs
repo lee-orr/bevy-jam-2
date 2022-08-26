@@ -1,6 +1,8 @@
 use std::f32::consts::PI;
 
-use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
+use bevy::{
+    prelude::*, render::view::visibility, sprite::MaterialMesh2dBundle,
+};
 use bevy_ecs_ldtk::{prelude::FieldValue, EntityInstance, LdtkEntity};
 use bevy_kira_audio::{Audio, AudioSource};
 use heron::{prelude::*, rapier_plugin::PhysicsWorld};
@@ -147,10 +149,16 @@ fn spawn_spirit(
     for (instance, transform) in entities.iter() {
         found_entites = true;
         let spawning = match instance.identifier.as_str() {
-            "StationarySpirit" => Some(commands.spawn().id()),
-            "RandomWalkSpirit" => {
-                Some(commands.spawn().insert(SpiritAvoidPlayer).id())
+            "StationarySpirit" => {
+                Some(commands.spawn().insert(RigidBody::Sensor).id())
             }
+            "RandomWalkSpirit" => Some(
+                commands
+                    .spawn()
+                    .insert(RigidBody::Dynamic)
+                    .insert(SpiritAvoidPlayer)
+                    .id(),
+            ),
             "CirclingSpirit" => {
                 let mut angle = 10f32;
                 let mut distance = 120f32;
@@ -175,6 +183,7 @@ fn spawn_spirit(
                 Some(
                     commands
                         .spawn()
+                        .insert(RigidBody::Dynamic)
                         .insert(SpiritSurrounder(angle * PI / 180., distance))
                         .id(),
                 )
@@ -255,6 +264,7 @@ fn spawn_spirit(
                     },
                     texture_atlas: atlas_handle.clone(),
                     transform: transform.with_scale(Vec3::ONE * 0.5),
+                    visibility: Visibility { is_visible: false },
                     ..default()
                 })
                 .insert(LevelElement)
@@ -266,7 +276,6 @@ fn spawn_spirit(
                     start: animation_start,
                 })
                 .insert(Spirit(max_speed))
-                .insert(RigidBody::Dynamic)
                 .insert(CollisionShape::Sphere { radius: 16. })
                 .insert(PhysicMaterial {
                     restitution: 0.9,
@@ -432,8 +441,8 @@ fn spirit_surrounder(
 }
 
 fn trigger_knot(
-    spirits: Query<
-        (&Transform, &TargetKnot),
+    mut spirits: Query<
+        (&Transform, &TargetKnot, &mut Visibility),
         (With<Spirit>, Without<PlayerControl>, With<CanSeePlayer>),
     >,
     players: Query<(&Transform, &ActionState<Action>), With<PlayerControl>>,
@@ -442,9 +451,10 @@ fn trigger_knot(
     let mut target_knot = None;
     for (player, action) in players.iter() {
         if action.pressed(Action::Interact) {
-            for (spirit, knot) in spirits.iter() {
+            for (spirit, knot, mut visibility) in spirits.iter_mut() {
                 if (player.translation - spirit.translation).length() < 100. {
                     target_knot = Some(knot.0.clone());
+                    visibility.is_visible = true;
                 }
             }
         }
