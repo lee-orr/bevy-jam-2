@@ -19,7 +19,7 @@ impl Plugin for LoadingPlugin {
 
 #[derive(AssetCollection)]
 pub struct LoadedAssets {
-    #[asset(path = "MotionPicture_PersonalUseOnly.ttf")]
+    #[asset(path = "BodoniFLF-Roman.ttf")]
     pub font: Handle<Font>,
 
     #[asset(path = "level-test.ldtk")]

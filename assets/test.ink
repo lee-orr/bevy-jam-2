@@ -1,5 +1,3 @@
--> start
-
 == start ==
 What is this place? #cass
 * [I'm not sure]
