@@ -1,4 +1,4 @@
-use bevy::{ecs::event, prelude::*};
+use bevy::prelude::*;
 
 use crate::{
     audio::AudioSpiritVolume,
@@ -6,6 +6,7 @@ use crate::{
         ink_asset::InkAsset,
         ink_story::{InkStory, StoryEvent},
     },
+    level::ActivationEvent,
     loading_state::LoadedAssets,
     states::{GameMode, States},
     theme::*,
@@ -97,7 +98,8 @@ fn display_current_narrative(
     assets: Res<LoadedAssets>,
     mut audio_spirit_volume: ResMut<AudioSpiritVolume>,
     mut game_mode: ResMut<State<GameMode>>,
-    mut state: ResMut<State<States>>
+    mut state: ResMut<State<States>>,
+    mut activation_event: EventWriter<ActivationEvent>,
 ) {
     let event = events.iter().last();
 
@@ -140,10 +142,22 @@ fn display_current_narrative(
                                 audio_spirit_volume.0 = 1.;
                             }
                             "play" => {
-                                trigger_play = true;
-                                game_mode.set(GameMode::Exploration);
+                                if !trigger_play {
+                                    trigger_play = true;
+                                    game_mode.set(GameMode::Exploration);
+                                }
                             }
-                            _ => {}
+                            _ => {
+                                if tag.starts_with("activate:") {
+                                    let target = tag.replace("activate:", "");
+                                    activation_event
+                                        .send(ActivationEvent(true, target));
+                                } else if tag.starts_with("deactivate:") {
+                                    let target = tag.replace("deactivate:", "");
+                                    activation_event
+                                        .send(ActivationEvent(false, target));
+                                }
+                            }
                         }
                     }
                     if !trigger_play {
@@ -164,39 +178,64 @@ fn display_current_narrative(
                         }
                         inkling::Prompt::Choice(choices) => {
                             for (index, choice) in choices.iter().enumerate() {
-                                parent
-                                    .spawn_bundle(ButtonBundle {
-                                        style: Style {
-                                            // center button
-                                            margin: UiRect::all(Val::Px(2.)),
-                                            padding: UiRect::all(Val::Px(5.)),
-                                            // horizontally center child text
-                                            justify_content:
-                                                JustifyContent::Center,
-                                            // vertically center child text
-                                            align_items: AlignItems::Center,
+                                for tag in choice.tags.iter() {
+                                    bevy::log::info!("Processing tag {}", &tag);
+                                    match tag.as_str() {
+                                        "play" => {
+                                            if !trigger_play {
+                                                trigger_play = true;
+                                                game_mode
+                                                    .set(GameMode::Exploration);
+                                            }
+                                        }
+                                        _ => {}
+                                    }
+                                }
+                                if trigger_play {
+                                    break;
+                                } else {
+                                    parent
+                                        .spawn_bundle(ButtonBundle {
+                                            style: Style {
+                                                // center button
+                                                margin: UiRect::all(Val::Px(
+                                                    2.,
+                                                )),
+                                                padding: UiRect::all(Val::Px(
+                                                    5.,
+                                                )),
+                                                // horizontally center child
+                                                // text
+                                                justify_content:
+                                                    JustifyContent::Center,
+                                                // vertically center child text
+                                                align_items: AlignItems::Center,
+                                                ..default()
+                                            },
+                                            color: Color::rgb(0.2, 0.2, 0.2)
+                                                .into(),
                                             ..default()
-                                        },
-                                        color: Color::rgb(0.2, 0.2, 0.2).into(),
-                                        ..default()
-                                    })
-                                    .insert(NarrativeChoiceButton {
-                                        choice: index.to_owned(),
-                                    })
-                                    .with_children(|parent| {
-                                        parent.spawn_bundle(
-                                            TextBundle::from_section(
-                                                &choice.text,
-                                                TextStyle {
-                                                    font: assets.font.clone(),
-                                                    font_size: 20.0,
-                                                    color: Color::rgb(
-                                                        0.8, 0.8, 0.8,
-                                                    ),
-                                                },
-                                            ),
-                                        );
-                                    });
+                                        })
+                                        .insert(NarrativeChoiceButton {
+                                            choice: index.to_owned(),
+                                        })
+                                        .with_children(|parent| {
+                                            parent.spawn_bundle(
+                                                TextBundle::from_section(
+                                                    &choice.text,
+                                                    TextStyle {
+                                                        font: assets
+                                                            .font
+                                                            .clone(),
+                                                        font_size: 20.0,
+                                                        color: Color::rgb(
+                                                            0.8, 0.8, 0.8,
+                                                        ),
+                                                    },
+                                                ),
+                                            );
+                                        });
+                                }
                             }
                         }
                     }
@@ -216,10 +255,11 @@ fn button_system(
         (Changed<Interaction>, With<Button>),
     >,
     mut event_writer: EventWriter<StoryEvent>,
-    mut story: Option<ResMut<InkStory>>,
+    story: Option<ResMut<InkStory>>,
 ) {
     if let Some(mut story) = story {
-        for (interaction, mut color, children, choice) in &mut interaction_query
+        for (interaction, mut color, _children, choice) in
+            &mut interaction_query
         {
             match *interaction {
                 Interaction::Clicked => {

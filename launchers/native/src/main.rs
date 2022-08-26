@@ -1,10 +1,10 @@
-use std::io::Cursor;
 
-use bevy::{prelude::*, window::WindowId, winit::WinitWindows};
 
-use winit::window::Icon;
+use bevy::{prelude::*, winit::WinitWindows};
 
-fn set_window_icon(windows: NonSend<WinitWindows>) {
+
+
+fn set_window_icon(_windows: NonSend<WinitWindows>) {
     /*let primary = windows.get_window(WindowId::primary()).unwrap();
 
     let (icon_rgba, icon_width, icon_height) = {

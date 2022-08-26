@@ -16,15 +16,21 @@ What is this place? #cass
 -> play_loop
 
 == tutorial ==
-    The tutorial is here...
-    -> play_loop
+The tutorial is here...
+-> play_loop
 
 == encounter_pontersons_essence ==
 - A small discussion w/ Dr. Ponterson's "essence fragment"/memory, trying
-to figure out where it is, and then rushing into the lab with "The demonstration should happen soon!"
-    -> play_loop
+to figure out where it is, and then rushing into the lab with "The demonstration should happen soon!" #activate:into_lab_portal
+-> play_loop
 
 == play_loop ==
-&nbsp; #play
-* [end_game]
++ [play #play]
++ [End Game]
+- 
+-> END
+
+== end_game ==
++ [End Game]
+- 
 -> END

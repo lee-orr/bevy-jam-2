@@ -1,7 +1,10 @@
-use std::error::Error;
 
-use bevy::{asset::{AssetLoader, LoadedAsset}, reflect::TypeUuid};
-use inkling::{Story, read_story_from_string};
+
+use bevy::{
+    asset::{AssetLoader, LoadedAsset},
+    reflect::TypeUuid,
+};
+
 
 #[derive(Debug, TypeUuid)]
 #[uuid = "71befef9-babf-4927-b360-1844b7e7fc97"]
@@ -22,11 +25,14 @@ impl AssetLoader for InkAssetLoader {
             let string = String::from_utf8(bytes.into());
             match string {
                 Ok(string) => {
-                    load_context.set_default_asset(LoadedAsset::new(InkAsset { story: string}));
+                    load_context.set_default_asset(LoadedAsset::new(
+                        InkAsset { story: string },
+                    ));
                     Ok(())
-                    
                 }
-                Err(err) => Err(bevy::asset::Error::msg("Failed to read text from file"))
+                Err(_err) => Err(bevy::asset::Error::msg(
+                    "Failed to read text from file",
+                )),
             }
         })
     }

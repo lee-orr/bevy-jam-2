@@ -1,13 +1,12 @@
 use std::f32::consts::PI;
 
-use bevy::{prelude::*, sprite::MaterialMesh2dBundle, transform};
+use bevy::{prelude::*};
 use bevy_ecs_ldtk::{prelude::FieldValue, EntityInstance};
-use bevy_inspector_egui::{Inspectable, RegisterInspectable};
+
 use heron::prelude::*;
 use leafwing_input_manager::prelude::*;
 
 use crate::{
-    ink::ink_story::{InkStory, StoryEvent},
     interactive_narrative::SetCurrentKnotEvent,
     level::LevelElement,
     loading_state::LoadedAssets,
@@ -70,12 +69,12 @@ impl Default for PlayerControl {
 
 fn spawn_player(
     mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
+    _meshes: ResMut<Assets<Mesh>>,
+    _materials: ResMut<Assets<ColorMaterial>>,
     entities: Query<(&EntityInstance, &Transform), Added<EntityInstance>>,
     mut event_writer: EventWriter<SetCurrentKnotEvent>,
     assets: Res<LoadedAssets>,
-    asset_server: Res<AssetServer>,
+    _asset_server: Res<AssetServer>,
     texture_atlas: Option<Res<CharacterAtlas>>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
@@ -229,7 +228,7 @@ fn move_player(
     >,
     time: Res<Time>,
 ) {
-    let delta = time.delta().as_secs_f32();
+    let _delta = time.delta().as_secs_f32();
 
     for (
         action,
@@ -243,9 +242,9 @@ fn move_player(
     {
         let mut z_rotation = 0.;
         if action.pressed(Action::RotateRight) {
-            z_rotation = z_rotation - *rotate_speed;
+            z_rotation -= *rotate_speed;
         } else if action.pressed(Action::RotateLeft) {
-            z_rotation = z_rotation + *rotate_speed;
+            z_rotation += *rotate_speed;
         }
         velocity.angular = AxisAngle::new(Vec3::Z, z_rotation);
 

@@ -1,5 +1,7 @@
 use bevy::prelude::*;
-use inkling::{Story, LineBuffer, Prompt, InklingError, read_story_from_string, Variable};
+use inkling::{
+    read_story_from_string, InklingError, LineBuffer, Prompt, Story, Variable,
+};
 
 use super::ink_asset::*;
 
@@ -9,7 +11,7 @@ pub struct InkStory {
 
 pub struct StoryEvent {
     pub lines: LineBuffer,
-    pub prompt: Prompt
+    pub prompt: Prompt,
 }
 
 impl InkStory {
@@ -20,7 +22,7 @@ impl InkStory {
         let asset = assets.get(handle);
         match asset {
             Some(asset) => {
-                let mut story = read_story_from_string(&asset.story);
+                let story = read_story_from_string(&asset.story);
                 match story {
                     Ok(mut story) => {
                         if let Err(_) = story.start() {
@@ -29,26 +31,29 @@ impl InkStory {
 
                         Some(Self { story })
                     }
-                    Err(err) => None,
+                    Err(_err) => None,
                 }
             }
             None => None,
         }
     }
 
-    pub fn resume_story(
-        &mut self,
-    ) -> Result<StoryEvent, InklingError> {
+    pub fn resume_story(&mut self) -> Result<StoryEvent, InklingError> {
         let mut buffer: LineBuffer = vec![];
-        let prompt =
-            self.story.resume(&mut buffer);
+        let prompt = self.story.resume(&mut buffer);
         match prompt {
-            Ok(prompt) => Ok(StoryEvent { lines: buffer, prompt }),
+            Ok(prompt) => Ok(StoryEvent {
+                lines: buffer,
+                prompt,
+            }),
             Err(e) => Err(e),
         }
     }
 
-    pub fn resume_story_with_event(&mut self, event_writer: &mut EventWriter<StoryEvent>) {
+    pub fn resume_story_with_event(
+        &mut self,
+        event_writer: &mut EventWriter<StoryEvent>,
+    ) {
         let resumed = self.resume_story();
         if let Ok(resumed) = resumed {
             event_writer.send(resumed)
@@ -71,7 +76,11 @@ impl InkStory {
         self.story.get_variable(name)
     }
 
-    pub fn set_variable<T: Into<Variable>>(&mut self, name: &str, value: T) -> Result<(), InklingError> {
+    pub fn set_variable<T: Into<Variable>>(
+        &mut self,
+        name: &str,
+        value: T,
+    ) -> Result<(), InklingError> {
         self.story.set_variable(name, value)
     }
 }

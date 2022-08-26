@@ -66,7 +66,7 @@ fn follow_user(
         for (mut transform, mut follow) in camera.iter_mut() {
             let direction = target - transform.translation;
             let direction = direction.normalize();
-            let distance = follow.1.clone();
+            let distance = follow.1;
 
             follow.0 += direction * delta * distance;
 

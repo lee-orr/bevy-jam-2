@@ -9,8 +9,7 @@ pub struct InkPlugin;
 
 impl Plugin for InkPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_event::<StoryEvent>()
+        app.add_event::<StoryEvent>()
             .add_asset::<InkAsset>()
             .init_asset_loader::<InkAssetLoader>();
     }

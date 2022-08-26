@@ -2,7 +2,7 @@ use crate::loading_state::LoadedAssets;
 use crate::physics::GameCollisionLayers;
 use crate::states::{GameMode, States};
 use bevy::prelude::*;
-use bevy_ecs_ldtk::ldtk::TileInstance;
+
 use bevy_ecs_ldtk::prelude::*;
 
 use heron::prelude::*;
@@ -13,6 +13,7 @@ impl Plugin for LevelPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(LdtkPlugin)
             .add_event::<SetLevelEvent>()
+            .add_event::<ActivationEvent>()
             .insert_resource(LevelSelection::Identifier("Level_0".into()))
             .insert_resource(LdtkSettings {
                 level_background: LevelBackground::Nonexistent,
@@ -35,6 +36,8 @@ impl Plugin for LevelPlugin {
             .add_system_set(
                 SystemSet::on_exit(States::InGame).with_system(exit_game),
             )
+            .add_system(set_activation)
+            .add_system_to_stage(CoreStage::Last, deactivate_elements)
             .add_system_to_stage(CoreStage::Last, clear_level_elements);
     }
 }
@@ -63,6 +66,18 @@ pub struct LevelElement;
 #[derive(Component)]
 #[component(storage = "SparseSet")]
 pub struct ClearLevelElement;
+
+#[derive(Component)]
+pub struct ActiveElement;
+
+#[derive(Component)]
+#[component(storage = "SparseSet")]
+pub struct DeactivateElement;
+
+pub struct ActivationEvent(pub bool, pub String);
+
+#[derive(Component)]
+pub struct NamedElement(pub String);
 
 #[derive(Component)]
 pub struct Portal(String);
@@ -102,6 +117,33 @@ fn clear_level_elements(
     }
 }
 
+fn deactivate_elements(
+    mut commands: Commands,
+    elements: Query<Entity, With<DeactivateElement>>,
+) {
+    for entity in elements.iter() {
+        commands.entity(entity).remove::<DeactivateElement>();
+        commands.entity(entity).remove::<ActiveElement>();
+    }
+}
+
+fn set_activation(mut commands: Commands, elements: Query<(Entity, &NamedElement)>, mut event_reader: EventReader<ActivationEvent>) {
+    for event in event_reader.iter() {
+        bevy::log::info!("Activation: {} {}", &event.0, &event.1);
+        for (entity, name) in elements.iter() {
+            if name.0 == event.1 {
+                bevy::log::info!("Found entity");
+                if event.0 {
+                    commands.entity(entity).insert(ActiveElement);
+                } else {
+                    commands.entity(entity).insert(DeactivateElement);
+                }
+                break;
+            }
+        }
+    }
+}
+
 fn build_walls(
     mut commands: Commands,
     cells: Query<(Entity, &IntGridCell), Added<IntGridCell>>,
@@ -130,9 +172,11 @@ fn build_portals(
         Added<EntityInstance>,
     >,
 ) {
-    for (entity, instance, transform) in entities.iter() {
+    for (entity, instance, _transform) in entities.iter() {
         if instance.identifier == "Portal" {
             let mut target_level = None;
+            let mut active = false;
+            let mut id = None;
 
             for field in instance.field_instances.iter() {
                 match field.identifier.as_str() {
@@ -141,24 +185,42 @@ fn build_portals(
                             target_level = Some(level.clone());
                         }
                     }
+                    "EntityId" => {
+                        if let FieldValue::String(Some(level)) = &field.value {
+                            id = Some(level.clone());
+                        }
+                    }
+                    "StartEnabled" => {
+                        if let FieldValue::Bool(start_enabled) = &field.value {
+                            active = *start_enabled;
+                        }
+                    }
                     _ => {}
                 }
             }
 
             if let Some(level) = target_level {
-                commands
-                    .entity(entity)
+                let mut entity_commands = commands.entity(entity);
+
+                entity_commands
                     .insert(Portal(level))
                     .insert(LevelElement)
                     .insert(RigidBody::Static)
                     .insert(CollisionShape::Cuboid {
-                        half_extends: Vec3::new(36., 36., 0.),
+                        half_extends: Vec3::new(32., 32., 0.),
                         border_radius: None,
                     })
                     .insert(
                         CollisionLayers::all_masks::<GameCollisionLayers>()
                             .with_group(GameCollisionLayers::Portal),
                     );
+
+                if active {
+                    entity_commands.insert(ActiveElement);
+                }
+                if let Some(id) = id {
+                    entity_commands.insert(NamedElement(id));
+                }
             }
         }
     }
@@ -166,7 +228,7 @@ fn build_portals(
 
 fn trigger_portal(
     mut collisions: EventReader<CollisionEvent>,
-    portals: Query<&Portal>,
+    portals: Query<&Portal, With<ActiveElement>>,
     mut set_level: EventWriter<SetLevelEvent>,
 ) {
     for event in collisions.iter().filter(|e| e.is_started()) {

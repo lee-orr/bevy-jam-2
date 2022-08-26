@@ -1,6 +1,9 @@
 use std::f32::consts::PI;
 
-use crate::{states::States, level::ClearLevelElement};
+use crate::{
+    level::{ActiveElement, ClearLevelElement, DeactivateElement},
+    states::States,
+};
 use bevy::prelude::*;
 use bevy_kira_audio::prelude::*;
 
@@ -17,7 +20,7 @@ impl Plugin for AudioPlayerPlugin {
             )
             .add_system_set(
                 SystemSet::on_update(States::InGame)
-                    .with_system(adjust_audio_loop_position_and_volume)
+                    .with_system(adjust_audio_loop_position_and_volume),
             )
             .add_system_to_stage(CoreStage::PostUpdate, despawn_audio);
     }
@@ -50,9 +53,12 @@ fn play_loop(
 
 fn adjust_audio_loop_position_and_volume(
     mut instances: ResMut<Assets<AudioInstance>>,
-    emitters: Query<(&Transform, &AudioInstanceHandle, &AudioEmitter)>,
+    emitters: Query<
+        (&Transform, &AudioInstanceHandle, &AudioEmitter),
+        With<ActiveElement>,
+    >,
     target: Query<&Transform, With<PlayerControl>>,
-    spirit_volume: Res<AudioSpiritVolume>
+    spirit_volume: Res<AudioSpiritVolume>,
 ) {
     let target = target.get_single();
 
@@ -94,11 +100,23 @@ fn adjust_audio_loop_position_and_volume(
 
 fn despawn_audio(
     mut instances: ResMut<Assets<AudioInstance>>,
-    emitters: Query<&AudioInstanceHandle, Added<ClearLevelElement>> ) {
-        for handle in emitters.iter() {
-            if let Some(instance) = instances.get_mut(&handle.0) {
-                instance.stop(AudioTween::default());
-                instances.remove(&handle.0);
-            }
+    emitters: Query<&AudioInstanceHandle, Added<ClearLevelElement>>,
+) {
+    for handle in emitters.iter() {
+        if let Some(instance) = instances.get_mut(&handle.0) {
+            instance.stop(AudioTween::default());
+            instances.remove(&handle.0);
         }
     }
+}
+
+fn deactivate_audio(
+    mut instances: ResMut<Assets<AudioInstance>>,
+    emitters: Query<&AudioInstanceHandle, Added<DeactivateElement>>,
+) {
+    for handle in emitters.iter() {
+        if let Some(instance) = instances.get_mut(&handle.0) {
+            instance.set_volume(0., AudioTween::default());
+        }
+    }
+}

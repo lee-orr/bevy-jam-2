@@ -1,29 +1,29 @@
 mod audio;
 mod camera;
+mod ink;
+mod interactive_narrative;
 mod level;
 mod loading_state;
 mod menu;
+mod physics;
 mod player;
 mod spirit;
 mod states;
-mod physics;
-mod ink;
-mod interactive_narrative;
 pub mod theme;
 
 use audio::*;
 use bevy::{prelude::*, render::texture::ImageSettings};
-use bevy_inspector_egui::{WorldInspectorPlugin, plugin::InspectorWindows};
+
 use camera::*;
 use heron::PhysicsPlugin;
 use ink::InkPlugin;
+use interactive_narrative::*;
 use level::*;
 use loading_state::*;
 use menu::*;
 use player::*;
 use spirit::*;
-use interactive_narrative::*;
-use states::{States, GameMode};
+use states::{GameMode, States};
 use theme::*;
 
 pub fn app() -> App {

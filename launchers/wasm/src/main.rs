@@ -44,7 +44,6 @@ fn view() -> Html {
         })
     };
 
-
     let css = css!(
         r#"
         position: absolute;

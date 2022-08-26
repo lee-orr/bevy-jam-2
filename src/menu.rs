@@ -47,7 +47,7 @@ fn setup(mut commands: Commands, assets: Res<LoadedAssets>) {
                 TextStyle {
                     font: assets.font.clone(),
                     font_size: 150.,
-                    color: TEXT_COLOR.into(),
+                    color: TEXT_COLOR,
                 },
             ));
             p.spawn_bundle(ButtonBundle {
@@ -68,7 +68,7 @@ fn setup(mut commands: Commands, assets: Res<LoadedAssets>) {
                     TextStyle {
                         font: assets.font.clone(),
                         font_size: 40.0,
-                        color: TEXT_COLOR.into(),
+                        color: TEXT_COLOR,
                     },
                 ));
             });
@@ -97,7 +97,7 @@ fn display_loading(mut commands: Commands, assets: Res<LoadedAssets>) {
                 TextStyle {
                     font: assets.font.clone(),
                     font_size: 40.0,
-                    color: TEXT_COLOR.into(),
+                    color: TEXT_COLOR,
                 },
             ));
         });

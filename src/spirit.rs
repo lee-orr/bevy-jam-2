@@ -1,18 +1,17 @@
 use std::f32::consts::PI;
 
 use bevy::{
-    prelude::*, render::view::visibility, sprite::MaterialMesh2dBundle,
+    prelude::*,
 };
-use bevy_ecs_ldtk::{prelude::FieldValue, EntityInstance, LdtkEntity};
-use bevy_kira_audio::{Audio, AudioSource};
+use bevy_ecs_ldtk::{prelude::FieldValue, EntityInstance};
+use bevy_kira_audio::{AudioSource};
 use heron::{prelude::*, rapier_plugin::PhysicsWorld};
 use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
     audio::AudioEmitter,
-    ink::ink_story::{InkStory, StoryEvent},
     interactive_narrative::SetCurrentKnotEvent,
-    level::LevelElement,
+    level::{ActiveElement, DeactivateElement, LevelElement, NamedElement},
     loading_state::LoadedAssets,
     physics::GameCollisionLayers,
     player::{Action, PlayerControl},
@@ -29,7 +28,8 @@ impl Plugin for SpiritPlugin {
                     .with_system(spirit_avoid_player)
                     .with_system(spirit_surrounder)
                     .with_system(determine_sightline)
-                    .with_system(animate_spirits),
+                    .with_system(animate_spirits)
+                    .with_system(deactivate_elements),
             )
             .add_system_set(
                 SystemSet::on_update(GameMode::Exploration)
@@ -104,13 +104,11 @@ fn spirits_ready(
         }
     }
 
-    if ready {
-        if let Ok(_) = app_state.set(States::InGame) {
-            bevy::log::debug!("Starting Level");
-            awaiting_emitters.emitters = vec![];
-            awaiting_emitters.is_set = false;
-            return;
-        }
+    if ready && app_state.set(States::InGame).is_ok() {
+        bevy::log::debug!("Starting Level");
+        awaiting_emitters.emitters = vec![];
+        awaiting_emitters.is_set = false;
+        return;
     }
 
     bevy::log::debug!("Waiting - not ready yet");
@@ -118,8 +116,8 @@ fn spirits_ready(
 
 fn spawn_spirit(
     mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
+    _meshes: ResMut<Assets<Mesh>>,
+    _materials: ResMut<Assets<ColorMaterial>>,
     mut awaiting_emitters: ResMut<AwaitingEmitters>,
     assets: Res<LoadedAssets>,
     asset_server: Res<AssetServer>,
@@ -192,13 +190,24 @@ fn spawn_spirit(
         };
         if let Some(entity) = spawning {
             let mut spawning = commands.entity(entity);
-            let (max_speed, audio, color, knot, animation_start, animation_end) = {
+            let (
+                max_speed,
+                audio,
+                _color,
+                knot,
+                animation_start,
+                animation_end,
+                active,
+                id,
+            ) = {
                 let mut max_speed = 9.5f32;
                 let mut audio = None;
                 let mut color = Color::WHITE;
                 let mut knot = None;
                 let mut animation_start = 0usize;
                 let mut animation_end = 0usize;
+                let mut active = false;
+                let mut id = None;
 
                 for field in instance.field_instances.iter() {
                     match field.identifier.as_str() {
@@ -242,6 +251,20 @@ fn spawn_spirit(
                                 animation_end = frame as usize;
                             }
                         }
+                        "EntityId" => {
+                            if let FieldValue::String(Some(level)) =
+                                &field.value
+                            {
+                                id = Some(level.clone());
+                            }
+                        }
+                        "StartEnabled" => {
+                            if let FieldValue::Bool(start_enabled) =
+                                &field.value
+                            {
+                                active = *start_enabled;
+                            }
+                        }
                         _ => {}
                     }
                 }
@@ -253,13 +276,15 @@ fn spawn_spirit(
                     knot,
                     animation_start,
                     animation_end,
+                    active,
+                    id,
                 )
             };
 
             spawning
                 .insert_bundle(SpriteSheetBundle {
                     sprite: TextureAtlasSprite {
-                        index: animation_start.clone(),
+                        index: animation_start,
                         ..default()
                     },
                     texture_atlas: atlas_handle.clone(),
@@ -295,10 +320,17 @@ fn spawn_spirit(
             if let Some(knot) = knot {
                 spawning.insert(TargetKnot(knot.clone()));
             }
+
+            if active {
+                spawning.insert(ActiveElement);
+            }
+            if let Some(id) = id {
+                spawning.insert(NamedElement(id));
+            }
         }
     }
 
-    if (found_entites) {
+    if found_entites {
         awaiting_emitters.emitters = emitters;
         awaiting_emitters.is_set = true;
     }
@@ -306,7 +338,7 @@ fn spawn_spirit(
 
 fn determine_sightline(
     mut commands: Commands,
-    spirits: Query<(Entity, &Transform), (With<Spirit>)>,
+    spirits: Query<(Entity, &Transform), (With<Spirit>, With<ActiveElement>)>,
     players: Query<(Entity, &Transform), With<PlayerControl>>,
     physics_world: PhysicsWorld,
 ) {
@@ -351,6 +383,7 @@ fn spirit_avoid_player(
             With<SpiritAvoidPlayer>,
             Without<PlayerControl>,
             With<CanSeePlayer>,
+            With<ActiveElement>,
         ),
     >,
     players: Query<&Transform, With<PlayerControl>>,
@@ -360,7 +393,7 @@ fn spirit_avoid_player(
     let target = players.get_single();
     let speed = 95f32;
     let delta = time.delta().as_secs_f32();
-    let bounds = if let Some(window) = window.get_primary() {
+    let _bounds = if let Some(window) = window.get_primary() {
         (window.width() / 2., window.height() / 2.)
     } else {
         (500., 500.)
@@ -372,7 +405,7 @@ fn spirit_avoid_player(
         Vec3::ZERO
     };
 
-    for (mut transform, spirit, mut velocity_component) in spirits.iter_mut() {
+    for (transform, spirit, mut velocity_component) in spirits.iter_mut() {
         let direction = transform.translation - player_position;
         if direction.length() > 300. {
             return;
@@ -393,7 +426,11 @@ fn spirit_avoid_player(
 fn spirit_surrounder(
     mut spirits: Query<
         (&Transform, &Spirit, &SpiritSurrounder, &mut Velocity),
-        (Without<PlayerControl>, With<CanSeePlayer>),
+        (
+            Without<PlayerControl>,
+            With<CanSeePlayer>,
+            With<ActiveElement>,
+        ),
     >,
     players: Query<&Transform, With<PlayerControl>>,
     time: Res<Time>,
@@ -403,7 +440,7 @@ fn spirit_surrounder(
     let speed = 95f32;
     let delta = time.delta().as_secs_f32();
     let elapsed = time.time_since_startup().as_secs_f32();
-    let bounds = if let Some(window) = window.get_primary() {
+    let _bounds = if let Some(window) = window.get_primary() {
         (window.width() / 2., window.height() / 2.)
     } else {
         (500., 500.)
@@ -443,7 +480,12 @@ fn spirit_surrounder(
 fn trigger_knot(
     mut spirits: Query<
         (&Transform, &TargetKnot, &mut Visibility),
-        (With<Spirit>, Without<PlayerControl>, With<CanSeePlayer>),
+        (
+            With<Spirit>,
+            Without<PlayerControl>,
+            With<CanSeePlayer>,
+            With<ActiveElement>,
+        ),
     >,
     players: Query<(&Transform, &ActionState<Action>), With<PlayerControl>>,
     mut event_writer: EventWriter<SetCurrentKnotEvent>,
@@ -468,7 +510,7 @@ fn trigger_knot(
 fn animate_spirits(
     mut spirits: Query<
         (&mut TextureAtlasSprite, &SpiritAnimationIndices),
-        With<Spirit>,
+        (With<Spirit>, With<ActiveElement>),
     >,
     time: Res<Time>,
 ) {
@@ -476,5 +518,16 @@ fn animate_spirits(
     for (mut sprite, animation) in spirits.iter_mut() {
         let current_index = animation.start + (time % animation.len);
         sprite.index = current_index;
+    }
+}
+
+fn deactivate_elements(
+    mut spirits: Query<
+        &mut Visibility,
+        (With<Spirit>, Added<DeactivateElement>),
+    >,
+) {
+    for mut visibility in spirits.iter_mut() {
+        visibility.is_visible = false;
     }
 }

@@ -1,9 +1,9 @@
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
-use bevy_kira_audio::AudioSource;
 
-use crate::{states::States, ink::ink_asset::InkAsset};
+
+use crate::{ink::ink_asset::InkAsset, states::States};
 
 pub struct LoadingPlugin;
 
