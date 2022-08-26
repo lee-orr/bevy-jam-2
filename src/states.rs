@@ -3,7 +3,7 @@ pub enum States {
     Loading,
     Menu,
     LoadingLevel,
-    InGame,
+    InGame
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]

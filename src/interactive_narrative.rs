@@ -97,6 +97,7 @@ fn display_current_narrative(
     assets: Res<LoadedAssets>,
     mut audio_spirit_volume: ResMut<AudioSpiritVolume>,
     mut game_mode: ResMut<State<GameMode>>,
+    mut state: ResMut<State<States>>
 ) {
     let event = events.iter().last();
 
@@ -159,14 +160,7 @@ fn display_current_narrative(
                 if !trigger_play {
                     match &event.prompt {
                         inkling::Prompt::Done => {
-                            parent.spawn_bundle(TextBundle::from_section(
-                                "The End!",
-                                TextStyle {
-                                    font: assets.font.clone(),
-                                    font_size: 15.0,
-                                    color: Color::rgb(0.7, 0.7, 0.7),
-                                },
-                            ));
+                            state.set(States::Menu).unwrap();
                         }
                         inkling::Prompt::Choice(choices) => {
                             for (index, choice) in choices.iter().enumerate() {

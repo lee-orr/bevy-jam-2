@@ -32,6 +32,9 @@ impl Plugin for LevelPlugin {
                     .with_system(build_walls)
                     .with_system(build_portals),
             )
+            .add_system_set(
+                SystemSet::on_exit(States::InGame).with_system(exit_game),
+            )
             .add_system_to_stage(CoreStage::Last, clear_level_elements);
     }
 }
@@ -81,8 +84,19 @@ fn start_level(
         .insert(LevelElement);
 }
 
-fn clear_level_elements(mut commands: Commands, elements: Query<Entity, With<ClearLevelElement>>) {
-    
+fn exit_game(
+    mut commands: Commands,
+    elements: Query<Entity, With<LevelElement>>,
+) {
+    for entity in elements.iter() {
+        commands.entity(entity).insert(ClearLevelElement);
+    }
+}
+
+fn clear_level_elements(
+    mut commands: Commands,
+    elements: Query<Entity, With<ClearLevelElement>>,
+) {
     for entity in elements.iter() {
         commands.entity(entity).despawn_recursive();
     }
