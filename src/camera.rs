@@ -39,10 +39,11 @@ fn set_user_position(
     let target = player.get_single();
 
     if let Ok(target) = target {
+        bevy::log::info!("Setting camera to {:?}", &target);
         let target = target.translation();
 
         for (mut transform, mut follow) in camera.iter_mut() {
-            transform.translation += target;
+            transform.translation = Vec3::new(target.x, target.y, 99.);
             follow.0 = Vec3::ZERO;
         }
     }
