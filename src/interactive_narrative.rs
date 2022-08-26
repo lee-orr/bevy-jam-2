@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use inkling::{InklingError, error::variable::VariableError};
 
 use crate::{
     audio::AudioSpiritVolume,
@@ -100,6 +101,7 @@ fn display_current_narrative(
     mut game_mode: ResMut<State<GameMode>>,
     mut state: ResMut<State<States>>,
     mut activation_event: EventWriter<ActivationEvent>,
+    mut story: ResMut<InkStory>,
 ) {
     let event = events.iter().last();
 
@@ -160,7 +162,33 @@ fn display_current_narrative(
                             }
                         }
                     }
-                    if !trigger_play {
+                    if line.text.starts_with("~") {
+                        let line = line.text.replace("~", "");
+                        let mut split = line.split("=");
+                        let variable_name = split.next();
+                        let variable_value = split.next();
+                        if let (Some(variable_name), Some(variable_value)) =
+                            (variable_name, variable_value)
+                        {
+                            let variable_name = variable_name.trim();
+                            let variable_value = variable_value.trim();
+                            if let Ok(variable) = story.get_variable(&variable_name) {
+                                let result = match variable {
+                                    inkling::Variable::Bool(_) => story.set_variable(&variable_name, variable_value == "true"),
+                                    inkling::Variable::Float(_) => story.set_variable(&variable_name, variable_value.parse::<f32>().unwrap_or_default()),
+                                    inkling::Variable::Int(_) => story.set_variable(&variable_name, variable_value.parse::<i32>().unwrap_or_default()),
+                                    inkling::Variable::String(_) => story.set_variable(&variable_name, variable_value.trim_matches('"').to_owned()),
+                                    _ => {Err(InklingError::VariableError(VariableError { variable: variable.clone(), kind: inkling::error::variable::VariableErrorKind::NonMatchingAssignment { other: inkling::Variable::from(variable_value) }}))}
+                                };
+                                if let Err(err) = result {
+                                    bevy::log::error!(
+                                        "Error parsing variable assignment {}",
+                                        err
+                                    );
+                                }
+                            }
+                        }
+                    } else if !trigger_play {
                         parent.spawn_bundle(TextBundle::from_section(
                             &line.text,
                             TextStyle {

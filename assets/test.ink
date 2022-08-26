@@ -1,3 +1,5 @@
+-> start
+
 == start ==
 What is this place? #cass
 * [I'm not sure]
@@ -32,7 +34,8 @@ to figure out where it is, and then rushing into the lab with "The demonstration
 -> play_loop
 
 == play_loop ==
-+ [play #play]
++ play #play
++ tutorial -> tutorial
 + [End Game]
 - 
 -> END
