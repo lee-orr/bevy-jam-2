@@ -51,13 +51,18 @@ fn set_current_knot(
     mut game_mode: ResMut<State<GameMode>>,
 ) {
     let event = event_reader.iter().last();
-    if let (Some(story), Some(SetCurrentKnotEvent(Some(target_knot)))) =
+    if let (Some(story), Some(SetCurrentKnotEvent(target_knot))) =
         (&mut story, event)
     {
-        bevy::log::info!("Setting story knot {}", &target_knot);
-        story.move_to(target_knot, None);
-        story.resume_story_with_event(&mut event_writer);
-        game_mode.set(GameMode::Conversation);
+        if let Some(target_knot) = target_knot {
+            bevy::log::info!("Setting story knot {}", &target_knot);
+            story.move_to(target_knot, None);
+            story.resume_story_with_event(&mut event_writer);
+            game_mode.set(GameMode::Conversation);
+        } else {
+            bevy::log::info!("No story knot - setting to exploration mode");
+            game_mode.set(GameMode::Exploration);
+        }
     }
 }
 
