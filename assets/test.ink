@@ -1,3 +1,22 @@
+VAR knows_about_portal = false
+
+-> start
+
+
+== play_loop ==
++ play #play
+* [tutorial] -> tutorial
+* [encounter pontersons essence] -> encounter_pontersons_essence
+* [enter lab] -> entering_the_lab
++ [End Game]
+- 
+-> END
+
+== end_game ==
++ [End Game]
+- 
+-> END
+
 == start ==
 What is this place? #cass
 * [I'm not sure]
@@ -27,18 +46,34 @@ We're close! But I can't see anything here... #cass
 -> play_loop
 
 == encounter_pontersons_essence ==
-- A small discussion w/ Dr. Ponterson's "essence fragment"/memory, trying
-to figure out where it is, and then rushing into the lab with "The demonstration should happen soon!" #activate:into_lab_portal
+Hello? #ponterson #activate:into_lab_portal
+Are you here for the demonstration? #ponterson
+* What demonstration?
+    The portal demonstration, of course. #ponterson
+    ~ knows_about_portal = true
+    Come on, it's about to start. #ponterson
+* Yes, of course!
+    Well, come on in then! It should start in a few minutes. #ponterson
+* No... Who are you?
+    I'm not quite sure... I just - I know there is a demonstration happening soon. I think it's for something I made... #ponterson
+    ** What was it?
+        I think it's some kind of portal, but I'm not entirely sure. #ponterson
+        ~knows_about_portal = true
+    ** You can't remember who you are?
+        It is a bit strange...
+    -- I'm having some weird memory issues right now... All I can really remember is standing outside the lab, and then realizing - #ponterson
+        It's about to start! #ponterson
+- 
 -> play_loop
 
-== play_loop ==
-+ play #play
-+ tutorial -> tutorial
-+ [End Game]
-- 
--> END
-
-== end_game ==
-+ [End Game]
-- 
--> END
+== entering_the_lab ==
+Wow - I wasn't expecting that cabin to look like this... #cass
+* {knows_about_portal} She said something about a portal... Maybe the door was it?
+    Maybe you're right... but why put a portal in the middle of the woods? #cass
+* Isn't it bigger on the inside?
+    It's weird in here - it's so creepy. Where is everyone? #cass
+    And what is that music? #cass
+* I think I can hear something - maybe it's another memory?
+    Ok - just be careful. #cass
+-
+-> play_loop
