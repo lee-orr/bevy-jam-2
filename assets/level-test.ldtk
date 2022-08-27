@@ -2160,17 +2160,20 @@
 							"defUid": 59,
 							"px": [288,160],
 							"fieldInstances": [
-								{ "__identifier": "Audio", "__value": "bevy jam song - 0008 - Instrument - Clarinet.ogg", "__type": "String", "__tile": null, "defUid": 61, "realEditorValues": [{
+								{ "__identifier": "Audio", "__value": "bevy jam song - 0005 - Instrument - Sax.ogg", "__type": "String", "__tile": null, "defUid": 61, "realEditorValues": [{
 									"id": "V_String",
-									"params": ["bevy jam song - 0008 - Instrument - Clarinet.ogg"]
+									"params": ["bevy jam song - 0005 - Instrument - Sax.ogg"]
 								}] },
 								{ "__identifier": "TriggerKnot", "__value": "encounter_pontersons_essence", "__type": "String", "__tile": null, "defUid": 75, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["encounter_pontersons_essence"]
 								}] },
-								{ "__identifier": "AnimationStart", "__value": 0, "__type": "Int", "__tile": null, "defUid": 80, "realEditorValues": [{ "id": "V_Int", "params": [0] }] },
-								{ "__identifier": "AnimationEnd", "__value": 2, "__type": "Int", "__tile": null, "defUid": 82, "realEditorValues": [{ "id": "V_Int", "params": [2] }] },
-								{ "__identifier": "EntityId", "__value": null, "__type": "String", "__tile": null, "defUid": 86, "realEditorValues": [] },
+								{ "__identifier": "AnimationStart", "__value": 32, "__type": "Int", "__tile": null, "defUid": 80, "realEditorValues": [{ "id": "V_Int", "params": [32] }] },
+								{ "__identifier": "AnimationEnd", "__value": 34, "__type": "Int", "__tile": null, "defUid": 82, "realEditorValues": [{ "id": "V_Int", "params": [34] }] },
+								{ "__identifier": "EntityId", "__value": "pontersons_essence", "__type": "String", "__tile": null, "defUid": 86, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["pontersons_essence"]
+								}] },
 								{ "__identifier": "StartEnabled", "__value": true, "__type": "Bool", "__tile": null, "defUid": 90, "realEditorValues": [{
 									"id": "V_Bool",
 									"params": [ true ]

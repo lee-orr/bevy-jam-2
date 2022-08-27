@@ -196,7 +196,7 @@ fn display_current_narrative(
                                 }
                             }
                         }
-                    } else if !trigger_play {
+                    } else if !trigger_play && line.text.trim() != "&nbsp;"{
                         parent.spawn_bundle(TextBundle::from_section(
                             &line.text,
                             TextStyle {

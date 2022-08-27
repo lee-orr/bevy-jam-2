@@ -72,7 +72,7 @@ Hello there! Do you know where we are? #ponterson #activate:into_lab_portal
         Yes - right there, behind me. It's abit smaller and more wooden than it used to be, but the inside did look right! Come on in!
     ** [Well - I don't remember seeing this cabin before, so we might both be lost...]
         That's the lab - it's abit strange that it looks so small and broken on the outside... I think it normally looked different. But inside it's still normal! Let's go!
--
+- &nbsp; #deactivate:pontersons_essence
 -> play_loop_intro
 
 == entered_lab ==

@@ -28,9 +28,9 @@ impl Plugin for SpiritPlugin {
                     .with_system(spirit_avoid_player)
                     .with_system(spirit_surrounder)
                     .with_system(determine_sightline)
-                    .with_system(animate_spirits)
-                    .with_system(deactivate_elements),
+                    .with_system(animate_spirits),
             )
+            .add_system_to_stage(CoreStage::PostUpdate, deactivate_elements)
             .add_system_set(
                 SystemSet::on_update(GameMode::Exploration)
                     .with_system(trigger_knot),
@@ -524,7 +524,7 @@ fn animate_spirits(
 fn deactivate_elements(
     mut spirits: Query<
         &mut Visibility,
-        (With<Spirit>, Added<DeactivateElement>),
+        (With<Spirit>, With<DeactivateElement>),
     >,
 ) {
     for mut visibility in spirits.iter_mut() {
