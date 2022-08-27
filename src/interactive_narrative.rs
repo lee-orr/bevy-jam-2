@@ -71,9 +71,13 @@ fn set_current_knot(
 fn start_narrative(
     mut commands: Commands,
     ink_assets: Res<Assets<InkAsset>>,
+    ink_story: Option<Res<InkStory>>,
     handles: Res<LoadedAssets>,
     mut event_writer: EventWriter<StoryEvent>,
 ) {
+    if ink_story.is_some() {
+        return;
+    }
     if let Some(mut story) = InkStory::new(&handles.test_ink, &ink_assets) {
         story.resume_story_with_event(&mut event_writer);
         commands.insert_resource(story);
@@ -185,6 +189,10 @@ fn display_current_narrative(
                                         "Error parsing variable assignment {}",
                                         err
                                     );
+                                } else {
+                                    if let Ok(variable) = story.get_variable(&variable_name) {
+                                        bevy::log::info!("Set variable: {} to {:?}", &variable_name, variable)
+                                    }
                                 }
                             }
                         }

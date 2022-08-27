@@ -1723,7 +1723,10 @@
 							"fieldInstances": [
 								{ "__identifier": "MoveSpeed", "__value": 20, "__type": "Float", "__tile": null, "defUid": 44, "realEditorValues": [null] },
 								{ "__identifier": "RotateSpeed", "__value": 90, "__type": "Float", "__tile": null, "defUid": 48, "realEditorValues": [null] },
-								{ "__identifier": "LevelStartKnot", "__value": null, "__type": "String", "__tile": null, "defUid": 74, "realEditorValues": [] }
+								{ "__identifier": "LevelStartKnot", "__value": "entered_lab", "__type": "String", "__tile": null, "defUid": 74, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["entered_lab"]
+								}] }
 							]
 						},
 						{
