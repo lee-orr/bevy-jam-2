@@ -221,14 +221,14 @@ fn build_portals(
                 }
             }
 
-            if has_target {
+            if has_target || solid {
                 let mut entity_commands = commands.entity(entity);
 
                 entity_commands
                     .insert(LevelElement)
                     .insert(if solid { RigidBody::Static } else { RigidBody::Sensor })
                     .insert(CollisionShape::Cuboid {
-                        half_extends: Vec3::new((instance.height as f32)/2., (instance.width as f32)/2., 0.),
+                        half_extends: Vec3::new((instance.width as f32)/2., (instance.height as f32)/2., 0.),
                         border_radius: None,
                     })
                     .insert(
