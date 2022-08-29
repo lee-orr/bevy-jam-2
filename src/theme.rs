@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 
-pub const LAUNCHER_TITLE: &str = "Memory Mixer";
+pub const LAUNCHER_TITLE: &str = "The Curious Case
+of the Lab
+in the Forest";
 pub const BACKGROUIND_COLOR: Color = Color::rgb(0.07, 0.07, 0.07);
 pub const NORMAL_BUTTON: Color = Color::rgb(0.23, 0.23, 0.23);
 pub const HOVERED_BUTTON: Color = Color::rgb(0.33, 0.33, 0.33);

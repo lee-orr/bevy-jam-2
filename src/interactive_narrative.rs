@@ -18,6 +18,7 @@ pub struct InteractiveNarrativePlugin;
 impl Plugin for InteractiveNarrativePlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<SetCurrentKnotEvent>()
+            .init_resource::<CurrentCharacter>()
             .add_system(set_current_knot)
             .add_system_set(
                 SystemSet::on_enter(States::InGame)
@@ -96,6 +97,9 @@ fn clear_narrative_root(
     }
 }
 
+#[derive(Default)]
+struct CurrentCharacter(Option<(String, usize)>);
+
 fn display_current_narrative(
     mut commands: Commands,
     mut events: EventReader<StoryEvent>,
@@ -106,6 +110,7 @@ fn display_current_narrative(
     mut state: ResMut<State<States>>,
     mut activation_event: EventWriter<ActivationEvent>,
     mut story: ResMut<InkStory>,
+    mut character: ResMut<CurrentCharacter>
 ) {
     let event = events.iter().last();
 
@@ -153,6 +158,21 @@ fn display_current_narrative(
                                     game_mode.set(GameMode::Exploration);
                                 }
                             }
+                            "cass" => {
+                                character.0 = Some(("Cass".to_string(), 0));
+                            }
+                            "alverniss" => {
+                                character.0 = Some(("Mx. Alverniss".to_string(), 48));
+                            }
+                            "rollins" => {
+                                character.0 = Some(("Cpl. Rollins".to_string(), 64));
+                            }
+                            "bricksworth" => {
+                                character.0 = Some(("Mr. Bricksworth".to_string(), 16));
+                            }
+                            "ponterson" => {
+                                character.0 = Some(("Dr. Ponterson".to_string(), 32));
+                            }
                             _ => {
                                 if tag.starts_with("activate:") {
                                     let target = tag.replace("activate:", "");
@@ -198,7 +218,7 @@ fn display_current_narrative(
                         }
                     } else if !trigger_play && line.text.trim() != "&nbsp;"{
                         parent.spawn_bundle(TextBundle::from_section(
-                            &line.text,
+                            format!("{}{}", if let Some((character, _)) = &character.0 { format!("{}: ", &character) } else {"".to_string()},&line.text),
                             TextStyle {
                                 font: assets.font.clone(),
                                 font_size: 26.0,

@@ -32,7 +32,7 @@ struct AudioInstanceHandle(Handle<AudioInstance>);
 #[derive(Component)]
 pub struct AudioEmitter(pub Handle<AudioSource>, pub String);
 
-const AUDIO_RANGE: f32 = 200.;
+const AUDIO_RANGE: f32 = 500.;
 
 pub struct AudioSpiritVolume(pub f32);
 

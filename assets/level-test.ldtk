@@ -2167,7 +2167,10 @@
 									"id": "V_Bool",
 									"params": [ true ]
 								}] },
-								{ "__identifier": "TriggerOnCollision", "__value": false, "__type": "Bool", "__tile": null, "defUid": 93, "realEditorValues": [] }
+								{ "__identifier": "TriggerOnCollision", "__value": false, "__type": "Bool", "__tile": null, "defUid": 93, "realEditorValues": [{
+									"id": "V_Bool",
+									"params": [ false ]
+								}] }
 							]
 						},
 						{
@@ -3367,9 +3370,18 @@
 							"px": [64,128],
 							"fieldInstances": [
 								{ "__identifier": "TargetLevel", "__value": null, "__type": "String", "__tile": null, "defUid": 72, "realEditorValues": [] },
-								{ "__identifier": "EntityId", "__value": null, "__type": "String", "__tile": null, "defUid": 84, "realEditorValues": [] },
-								{ "__identifier": "StartEnabled", "__value": false, "__type": "Bool", "__tile": null, "defUid": 88, "realEditorValues": [] },
-								{ "__identifier": "TargetKnot", "__value": null, "__type": "String", "__tile": null, "defUid": 99, "realEditorValues": [] },
+								{ "__identifier": "EntityId", "__value": "observation_deck", "__type": "String", "__tile": null, "defUid": 84, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["observation_deck"]
+								}] },
+								{ "__identifier": "StartEnabled", "__value": true, "__type": "Bool", "__tile": null, "defUid": 88, "realEditorValues": [{
+									"id": "V_Bool",
+									"params": [ true ]
+								}] },
+								{ "__identifier": "TargetKnot", "__value": "observation_deck", "__type": "String", "__tile": null, "defUid": 99, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["observation_deck"]
+								}] },
 								{ "__identifier": "Solid", "__value": true, "__type": "Bool", "__tile": null, "defUid": 100, "realEditorValues": [] }
 							]
 						},
@@ -3426,7 +3438,7 @@
 							"defUid": 32,
 							"px": [800,1184],
 							"fieldInstances": [
-								{ "__identifier": "MoveSpeed", "__value": 20, "__type": "Float", "__tile": null, "defUid": 44, "realEditorValues": [] },
+								{ "__identifier": "MoveSpeed", "__value": 100, "__type": "Float", "__tile": null, "defUid": 44, "realEditorValues": [{ "id": "V_Float", "params": [100] }] },
 								{ "__identifier": "RotateSpeed", "__value": 90, "__type": "Float", "__tile": null, "defUid": 48, "realEditorValues": [] },
 								{ "__identifier": "LevelStartKnot", "__value": "entered_lab", "__type": "String", "__tile": null, "defUid": 74, "realEditorValues": [{
 									"id": "V_String",
@@ -3453,9 +3465,9 @@
 									"id": "V_Bool",
 									"params": [ true ]
 								}] },
-								{ "__identifier": "TargetKnot", "__value": "return_to_woods", "__type": "String", "__tile": null, "defUid": 99, "realEditorValues": [{
+								{ "__identifier": "TargetKnot", "__value": "deduction", "__type": "String", "__tile": null, "defUid": 99, "realEditorValues": [{
 									"id": "V_String",
-									"params": ["return_to_woods"]
+									"params": ["deduction"]
 								}] },
 								{ "__identifier": "Solid", "__value": true, "__type": "Bool", "__tile": null, "defUid": 100, "realEditorValues": [] }
 							]
@@ -3742,6 +3754,475 @@
 								{ "__identifier": "StartEnabled", "__value": false, "__type": "Bool", "__tile": null, "defUid": 88, "realEditorValues": [] },
 								{ "__identifier": "TargetKnot", "__value": null, "__type": "String", "__tile": null, "defUid": 99, "realEditorValues": [] },
 								{ "__identifier": "Solid", "__value": true, "__type": "Bool", "__tile": null, "defUid": 100, "realEditorValues": [] }
+							]
+						},
+						{
+							"__identifier": "StationarySpirit",
+							"__grid": [9,17],
+							"__pivot": [0.5,0.5],
+							"__tags": ["Spirits"],
+							"__tile": null,
+							"__smartColor": "#DAE7AA",
+							"iid": "9d428cd0-02f0-11ed-8099-2d09e803eaa1",
+							"width": 16,
+							"height": 16,
+							"defUid": 59,
+							"px": [608,1120],
+							"fieldInstances": [
+								{ "__identifier": "Audio", "__value": "bevy jam song - 0011 - Instrument - Drums 3.ogg", "__type": "String", "__tile": null, "defUid": 61, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["bevy jam song - 0011 - Instrument - Drums 3.ogg"]
+								}] },
+								{ "__identifier": "TriggerKnot", "__value": "rollins_and_alverniss_placing_a_bet", "__type": "String", "__tile": null, "defUid": 75, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["rollins_and_alverniss_placing_a_bet"]
+								}] },
+								{ "__identifier": "AnimationStart", "__value": 64, "__type": "Int", "__tile": null, "defUid": 80, "realEditorValues": [{ "id": "V_Int", "params": [64] }] },
+								{ "__identifier": "AnimationEnd", "__value": 66, "__type": "Int", "__tile": null, "defUid": 82, "realEditorValues": [{ "id": "V_Int", "params": [66] }] },
+								{ "__identifier": "EntityId", "__value": "rollins_and_alverniss_placing_a_bet", "__type": "String", "__tile": null, "defUid": 86, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["rollins_and_alverniss_placing_a_bet"]
+								}] },
+								{ "__identifier": "StartEnabled", "__value": true, "__type": "Bool", "__tile": null, "defUid": 90, "realEditorValues": [{
+									"id": "V_Bool",
+									"params": [ true ]
+								}] },
+								{ "__identifier": "TriggerOnCollision", "__value": false, "__type": "Bool", "__tile": null, "defUid": 93, "realEditorValues": [{
+									"id": "V_Bool",
+									"params": [ false ]
+								}] }
+							]
+						},
+						{
+							"__identifier": "StationarySpirit",
+							"__grid": [16,16],
+							"__pivot": [0.5,0.5],
+							"__tags": ["Spirits"],
+							"__tile": null,
+							"__smartColor": "#DAE7AA",
+							"iid": "297fd110-02f0-11ed-8099-e593c1fba344",
+							"width": 16,
+							"height": 16,
+							"defUid": 59,
+							"px": [1056,1056],
+							"fieldInstances": [
+								{ "__identifier": "Audio", "__value": "bevy jam song - 0008 - Instrument - Clarinet.ogg", "__type": "String", "__tile": null, "defUid": 61, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["bevy jam song - 0008 - Instrument - Clarinet.ogg"]
+								}] },
+								{ "__identifier": "TriggerKnot", "__value": "bricksworth_and_ponterson_fighting", "__type": "String", "__tile": null, "defUid": 75, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["bricksworth_and_ponterson_fighting"]
+								}] },
+								{ "__identifier": "AnimationStart", "__value": 16, "__type": "Int", "__tile": null, "defUid": 80, "realEditorValues": [{ "id": "V_Int", "params": [16] }] },
+								{ "__identifier": "AnimationEnd", "__value": 18, "__type": "Int", "__tile": null, "defUid": 82, "realEditorValues": [{ "id": "V_Int", "params": [18] }] },
+								{ "__identifier": "EntityId", "__value": "bricksworth_and_ponterson_fighting", "__type": "String", "__tile": null, "defUid": 86, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["bricksworth_and_ponterson_fighting"]
+								}] },
+								{ "__identifier": "StartEnabled", "__value": true, "__type": "Bool", "__tile": null, "defUid": 90, "realEditorValues": [{
+									"id": "V_Bool",
+									"params": [ true ]
+								}] },
+								{ "__identifier": "TriggerOnCollision", "__value": false, "__type": "Bool", "__tile": null, "defUid": 93, "realEditorValues": [] }
+							]
+						},
+						{
+							"__identifier": "Portal",
+							"__grid": [5,11],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#3B80D6",
+							"iid": "3f2ea150-02f0-11ed-8099-7fb69a584e56",
+							"width": 64,
+							"height": 64,
+							"defUid": 71,
+							"px": [320,704],
+							"fieldInstances": [
+								{ "__identifier": "TargetLevel", "__value": null, "__type": "String", "__tile": null, "defUid": 72, "realEditorValues": [] },
+								{ "__identifier": "EntityId", "__value": "seeing_portal_first_time", "__type": "String", "__tile": null, "defUid": 84, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["seeing_portal_first_time"]
+								}] },
+								{ "__identifier": "StartEnabled", "__value": true, "__type": "Bool", "__tile": null, "defUid": 88, "realEditorValues": [{
+									"id": "V_Bool",
+									"params": [ true ]
+								}] },
+								{ "__identifier": "TargetKnot", "__value": "seeing_portal_first_time", "__type": "String", "__tile": null, "defUid": 99, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["seeing_portal_first_time"]
+								}] },
+								{ "__identifier": "Solid", "__value": false, "__type": "Bool", "__tile": null, "defUid": 100, "realEditorValues": [{
+									"id": "V_Bool",
+									"params": [ false ]
+								}] }
+							]
+						},
+						{
+							"__identifier": "Portal",
+							"__grid": [12,11],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#3B80D6",
+							"iid": "77d383e0-02f0-11ed-8099-bb0b66f0eb70",
+							"width": 64,
+							"height": 64,
+							"defUid": 71,
+							"px": [768,704],
+							"fieldInstances": [
+								{ "__identifier": "TargetLevel", "__value": null, "__type": "String", "__tile": null, "defUid": 72, "realEditorValues": [] },
+								{ "__identifier": "EntityId", "__value": "enter_control_room", "__type": "String", "__tile": null, "defUid": 84, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["enter_control_room"]
+								}] },
+								{ "__identifier": "StartEnabled", "__value": true, "__type": "Bool", "__tile": null, "defUid": 88, "realEditorValues": [{
+									"id": "V_Bool",
+									"params": [ true ]
+								}] },
+								{ "__identifier": "TargetKnot", "__value": "enter_control_room", "__type": "String", "__tile": null, "defUid": 99, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["enter_control_room"]
+								}] },
+								{ "__identifier": "Solid", "__value": false, "__type": "Bool", "__tile": null, "defUid": 100, "realEditorValues": [{
+									"id": "V_Bool",
+									"params": [ false ]
+								}] }
+							]
+						},
+						{
+							"__identifier": "Portal",
+							"__grid": [12,5],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#3B80D6",
+							"iid": "9187de30-02f0-11ed-8099-f14ebb6fb8a8",
+							"width": 64,
+							"height": 64,
+							"defUid": 71,
+							"px": [768,320],
+							"fieldInstances": [
+								{ "__identifier": "TargetLevel", "__value": null, "__type": "String", "__tile": null, "defUid": 72, "realEditorValues": [] },
+								{ "__identifier": "EntityId", "__value": "enter_power_room", "__type": "String", "__tile": null, "defUid": 84, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["enter_power_room"]
+								}] },
+								{ "__identifier": "StartEnabled", "__value": true, "__type": "Bool", "__tile": null, "defUid": 88, "realEditorValues": [{
+									"id": "V_Bool",
+									"params": [ true ]
+								}] },
+								{ "__identifier": "TargetKnot", "__value": "enter_power_room", "__type": "String", "__tile": null, "defUid": 99, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["enter_power_room"]
+								}] },
+								{ "__identifier": "Solid", "__value": false, "__type": "Bool", "__tile": null, "defUid": 100, "realEditorValues": [{
+									"id": "V_Bool",
+									"params": [ false ]
+								}] }
+							]
+						},
+						{
+							"__identifier": "Portal",
+							"__grid": [19,10],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#3B80D6",
+							"iid": "ed29f7a0-02f0-11ed-8099-513aed90d3d7",
+							"width": 64,
+							"height": 64,
+							"defUid": 71,
+							"px": [1216,640],
+							"fieldInstances": [
+								{ "__identifier": "TargetLevel", "__value": null, "__type": "String", "__tile": null, "defUid": 72, "realEditorValues": [] },
+								{ "__identifier": "EntityId", "__value": "enter_meeting_room", "__type": "String", "__tile": null, "defUid": 84, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["enter_meeting_room"]
+								}] },
+								{ "__identifier": "StartEnabled", "__value": true, "__type": "Bool", "__tile": null, "defUid": 88, "realEditorValues": [{
+									"id": "V_Bool",
+									"params": [ true ]
+								}] },
+								{ "__identifier": "TargetKnot", "__value": "enter_meeting_room", "__type": "String", "__tile": null, "defUid": 99, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["enter_meeting_room"]
+								}] },
+								{ "__identifier": "Solid", "__value": false, "__type": "Bool", "__tile": null, "defUid": 100, "realEditorValues": [{
+									"id": "V_Bool",
+									"params": [ false ]
+								}] }
+							]
+						},
+						{
+							"__identifier": "Portal",
+							"__grid": [19,1],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#3B80D6",
+							"iid": "0a897fa0-02f0-11ed-8099-a3bf367d8b2d",
+							"width": 64,
+							"height": 64,
+							"defUid": 71,
+							"px": [1216,64],
+							"fieldInstances": [
+								{ "__identifier": "TargetLevel", "__value": null, "__type": "String", "__tile": null, "defUid": 72, "realEditorValues": [] },
+								{ "__identifier": "EntityId", "__value": "ceo_office", "__type": "String", "__tile": null, "defUid": 84, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["ceo_office"]
+								}] },
+								{ "__identifier": "StartEnabled", "__value": true, "__type": "Bool", "__tile": null, "defUid": 88, "realEditorValues": [{
+									"id": "V_Bool",
+									"params": [ true ]
+								}] },
+								{ "__identifier": "TargetKnot", "__value": "ceo_office", "__type": "String", "__tile": null, "defUid": 99, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["ceo_office"]
+								}] },
+								{ "__identifier": "Solid", "__value": false, "__type": "Bool", "__tile": null, "defUid": 100, "realEditorValues": [{
+									"id": "V_Bool",
+									"params": [ false ]
+								}] }
+							]
+						},
+						{
+							"__identifier": "StationarySpirit",
+							"__grid": [2,5],
+							"__pivot": [0.5,0.5],
+							"__tags": ["Spirits"],
+							"__tile": null,
+							"__smartColor": "#DAE7AA",
+							"iid": "c2654cb0-02f0-11ed-8099-5df45ea2ce77",
+							"width": 16,
+							"height": 16,
+							"defUid": 59,
+							"px": [160,352],
+							"fieldInstances": [
+								{ "__identifier": "Audio", "__value": "bevy jam song - 0002 - Instrument - Drums1.ogg", "__type": "String", "__tile": null, "defUid": 61, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["bevy jam song - 0002 - Instrument - Drums1.ogg"]
+								}] },
+								{ "__identifier": "TriggerKnot", "__value": "too_dangerous", "__type": "String", "__tile": null, "defUid": 75, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["too_dangerous"]
+								}] },
+								{ "__identifier": "AnimationStart", "__value": 32, "__type": "Int", "__tile": null, "defUid": 80, "realEditorValues": [{ "id": "V_Int", "params": [32] }] },
+								{ "__identifier": "AnimationEnd", "__value": 34, "__type": "Int", "__tile": null, "defUid": 82, "realEditorValues": [{ "id": "V_Int", "params": [34] }] },
+								{ "__identifier": "EntityId", "__value": "too_dangerous", "__type": "String", "__tile": null, "defUid": 86, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["too_dangerous"]
+								}] },
+								{ "__identifier": "StartEnabled", "__value": true, "__type": "Bool", "__tile": null, "defUid": 90, "realEditorValues": [{
+									"id": "V_Bool",
+									"params": [ true ]
+								}] },
+								{ "__identifier": "TriggerOnCollision", "__value": false, "__type": "Bool", "__tile": null, "defUid": 93, "realEditorValues": [] }
+							]
+						},
+						{
+							"__identifier": "StationarySpirit",
+							"__grid": [5,7],
+							"__pivot": [0.5,0.5],
+							"__tags": ["Spirits"],
+							"__tile": null,
+							"__smartColor": "#DAE7AA",
+							"iid": "b8f2b620-02f0-11ed-8099-c72a1bd96a92",
+							"width": 16,
+							"height": 16,
+							"defUid": 59,
+							"px": [352,480],
+							"fieldInstances": [
+								{ "__identifier": "Audio", "__value": "bevy jam song - 0004 - Instrument - Piano 1.ogg", "__type": "String", "__tile": null, "defUid": 61, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["bevy jam song - 0004 - Instrument - Piano 1.ogg"]
+								}] },
+								{ "__identifier": "TriggerKnot", "__value": "rollins_admiring_the_view", "__type": "String", "__tile": null, "defUid": 75, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["rollins_admiring_the_view"]
+								}] },
+								{ "__identifier": "AnimationStart", "__value": 64, "__type": "Int", "__tile": null, "defUid": 80, "realEditorValues": [{ "id": "V_Int", "params": [64] }] },
+								{ "__identifier": "AnimationEnd", "__value": 66, "__type": "Int", "__tile": null, "defUid": 82, "realEditorValues": [{ "id": "V_Int", "params": [66] }] },
+								{ "__identifier": "EntityId", "__value": "rollins_admiring_the_view", "__type": "String", "__tile": null, "defUid": 86, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["rollins_admiring_the_view"]
+								}] },
+								{ "__identifier": "StartEnabled", "__value": true, "__type": "Bool", "__tile": null, "defUid": 90, "realEditorValues": [{
+									"id": "V_Bool",
+									"params": [ true ]
+								}] },
+								{ "__identifier": "TriggerOnCollision", "__value": false, "__type": "Bool", "__tile": null, "defUid": 93, "realEditorValues": [] }
+							]
+						},
+						{
+							"__identifier": "StationarySpirit",
+							"__grid": [2,18],
+							"__pivot": [0.5,0.5],
+							"__tags": ["Spirits"],
+							"__tile": null,
+							"__smartColor": "#DAE7AA",
+							"iid": "c75cf030-02f0-11ed-8099-8b96dd44317d",
+							"width": 16,
+							"height": 16,
+							"defUid": 59,
+							"px": [160,1184],
+							"fieldInstances": [
+								{ "__identifier": "Audio", "__value": "bevy jam song - 0007 - Instrument - Strings.ogg", "__type": "String", "__tile": null, "defUid": 61, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["bevy jam song - 0007 - Instrument - Strings.ogg"]
+								}] },
+								{ "__identifier": "TriggerKnot", "__value": "alverniss_and_bricksworth_bicker", "__type": "String", "__tile": null, "defUid": 75, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["alverniss_and_bricksworth_bicker"]
+								}] },
+								{ "__identifier": "AnimationStart", "__value": 16, "__type": "Int", "__tile": null, "defUid": 80, "realEditorValues": [{ "id": "V_Int", "params": [16] }] },
+								{ "__identifier": "AnimationEnd", "__value": 18, "__type": "Int", "__tile": null, "defUid": 82, "realEditorValues": [{ "id": "V_Int", "params": [18] }] },
+								{ "__identifier": "EntityId", "__value": "alverniss_and_bricksworth_bicker", "__type": "String", "__tile": null, "defUid": 86, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["alverniss_and_bricksworth_bicker"]
+								}] },
+								{ "__identifier": "StartEnabled", "__value": true, "__type": "Bool", "__tile": null, "defUid": 90, "realEditorValues": [{
+									"id": "V_Bool",
+									"params": [ true ]
+								}] },
+								{ "__identifier": "TriggerOnCollision", "__value": false, "__type": "Bool", "__tile": null, "defUid": 93, "realEditorValues": [] }
+							]
+						},
+						{
+							"__identifier": "StationarySpirit",
+							"__grid": [16,2],
+							"__pivot": [0.5,0.5],
+							"__tags": ["Spirits"],
+							"__tile": null,
+							"__smartColor": "#DAE7AA",
+							"iid": "e501c920-02f0-11ed-8099-5d6f13892b02",
+							"width": 16,
+							"height": 16,
+							"defUid": 59,
+							"px": [1056,160],
+							"fieldInstances": [
+								{ "__identifier": "Audio", "__value": "bevy jam song - 0004 - Instrument - Piano 1.ogg", "__type": "String", "__tile": null, "defUid": 61, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["bevy jam song - 0004 - Instrument - Piano 1.ogg"]
+								}] },
+								{ "__identifier": "TriggerKnot", "__value": "alverniss_and_bricksworth_dance", "__type": "String", "__tile": null, "defUid": 75, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["alverniss_and_bricksworth_dance"]
+								}] },
+								{ "__identifier": "AnimationStart", "__value": 16, "__type": "Int", "__tile": null, "defUid": 80, "realEditorValues": [{ "id": "V_Int", "params": [16] }] },
+								{ "__identifier": "AnimationEnd", "__value": 18, "__type": "Int", "__tile": null, "defUid": 82, "realEditorValues": [{ "id": "V_Int", "params": [18] }] },
+								{ "__identifier": "EntityId", "__value": "alverniss_and_bricksworth_dance", "__type": "String", "__tile": null, "defUid": 86, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["alverniss_and_bricksworth_dance"]
+								}] },
+								{ "__identifier": "StartEnabled", "__value": true, "__type": "Bool", "__tile": null, "defUid": 90, "realEditorValues": [{
+									"id": "V_Bool",
+									"params": [ true ]
+								}] },
+								{ "__identifier": "TriggerOnCollision", "__value": false, "__type": "Bool", "__tile": null, "defUid": 93, "realEditorValues": [] }
+							]
+						},
+						{
+							"__identifier": "StationarySpirit",
+							"__grid": [8,9],
+							"__pivot": [0.5,0.5],
+							"__tags": ["Spirits"],
+							"__tile": null,
+							"__smartColor": "#DAE7AA",
+							"iid": "46c8f470-02f0-11ed-8099-170f81ed192a",
+							"width": 16,
+							"height": 16,
+							"defUid": 59,
+							"px": [544,608],
+							"fieldInstances": [
+								{ "__identifier": "Audio", "__value": "bevy jam song - 0012 - Instrument - Guitar.ogg", "__type": "String", "__tile": null, "defUid": 61, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["bevy jam song - 0012 - Instrument - Guitar.ogg"]
+								}] },
+								{ "__identifier": "TriggerKnot", "__value": "alverniss_in_the_control_room", "__type": "String", "__tile": null, "defUid": 75, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["alverniss_in_the_control_room"]
+								}] },
+								{ "__identifier": "AnimationStart", "__value": 48, "__type": "Int", "__tile": null, "defUid": 80, "realEditorValues": [{ "id": "V_Int", "params": [48] }] },
+								{ "__identifier": "AnimationEnd", "__value": 50, "__type": "Int", "__tile": null, "defUid": 82, "realEditorValues": [{ "id": "V_Int", "params": [50] }] },
+								{ "__identifier": "EntityId", "__value": "alverniss_in_the_control_room", "__type": "String", "__tile": null, "defUid": 86, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["alverniss_in_the_control_room"]
+								}] },
+								{ "__identifier": "StartEnabled", "__value": true, "__type": "Bool", "__tile": null, "defUid": 90, "realEditorValues": [{
+									"id": "V_Bool",
+									"params": [ true ]
+								}] },
+								{ "__identifier": "TriggerOnCollision", "__value": false, "__type": "Bool", "__tile": null, "defUid": 93, "realEditorValues": [] }
+							]
+						},
+						{
+							"__identifier": "StationarySpirit",
+							"__grid": [9,11],
+							"__pivot": [0.5,0.5],
+							"__tags": ["Spirits"],
+							"__tile": null,
+							"__smartColor": "#DAE7AA",
+							"iid": "b9ea86d0-02f0-11ed-8099-f517792cdc97",
+							"width": 16,
+							"height": 16,
+							"defUid": 59,
+							"px": [608,736],
+							"fieldInstances": [
+								{ "__identifier": "Audio", "__value": "bevy jam song - 0003 - Instrument - Bass 1.ogg", "__type": "String", "__tile": null, "defUid": 61, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["bevy jam song - 0003 - Instrument - Bass 1.ogg"]
+								}] },
+								{ "__identifier": "TriggerKnot", "__value": "ponterson_starting_demonstration", "__type": "String", "__tile": null, "defUid": 75, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["ponterson_starting_demonstration"]
+								}] },
+								{ "__identifier": "AnimationStart", "__value": 16, "__type": "Int", "__tile": null, "defUid": 80, "realEditorValues": [{ "id": "V_Int", "params": [16] }] },
+								{ "__identifier": "AnimationEnd", "__value": 18, "__type": "Int", "__tile": null, "defUid": 82, "realEditorValues": [{ "id": "V_Int", "params": [18] }] },
+								{ "__identifier": "EntityId", "__value": "ponterson_starting_demonstration", "__type": "String", "__tile": null, "defUid": 86, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["ponterson_starting_demonstration"]
+								}] },
+								{ "__identifier": "StartEnabled", "__value": true, "__type": "Bool", "__tile": null, "defUid": 90, "realEditorValues": [{
+									"id": "V_Bool",
+									"params": [ true ]
+								}] },
+								{ "__identifier": "TriggerOnCollision", "__value": false, "__type": "Bool", "__tile": null, "defUid": 93, "realEditorValues": [] }
+							]
+						},
+						{
+							"__identifier": "StationarySpirit",
+							"__grid": [15,9],
+							"__pivot": [0.5,0.5],
+							"__tags": ["Spirits"],
+							"__tile": null,
+							"__smartColor": "#DAE7AA",
+							"iid": "5cda6900-02f0-11ed-8099-337127b88e7b",
+							"width": 16,
+							"height": 16,
+							"defUid": 59,
+							"px": [992,608],
+							"fieldInstances": [
+								{ "__identifier": "Audio", "__value": "bevy jam song - 0006 - Instrument - Drums 2.ogg", "__type": "String", "__tile": null, "defUid": 61, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["bevy jam song - 0006 - Instrument - Drums 2.ogg"]
+								}] },
+								{ "__identifier": "TriggerKnot", "__value": "bricksworth_will_be_fired", "__type": "String", "__tile": null, "defUid": 75, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["bricksworth_will_be_fired"]
+								}] },
+								{ "__identifier": "AnimationStart", "__value": 16, "__type": "Int", "__tile": null, "defUid": 80, "realEditorValues": [{ "id": "V_Int", "params": [16] }] },
+								{ "__identifier": "AnimationEnd", "__value": 18, "__type": "Int", "__tile": null, "defUid": 82, "realEditorValues": [{ "id": "V_Int", "params": [18] }] },
+								{ "__identifier": "EntityId", "__value": "bricksworth_will_be_fired", "__type": "String", "__tile": null, "defUid": 86, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["bricksworth_will_be_fired"]
+								}] },
+								{ "__identifier": "StartEnabled", "__value": true, "__type": "Bool", "__tile": null, "defUid": 90, "realEditorValues": [{
+									"id": "V_Bool",
+									"params": [ true ]
+								}] },
+								{ "__identifier": "TriggerOnCollision", "__value": false, "__type": "Bool", "__tile": null, "defUid": 93, "realEditorValues": [] }
 							]
 						}
 					]

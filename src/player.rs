@@ -61,7 +61,7 @@ pub struct Companion;
 impl Default for PlayerControl {
     fn default() -> Self {
         Self {
-            move_speed: 10.,
+            move_speed: 50.,
             rotate_speed: 45. * PI / 180.,
         }
     }

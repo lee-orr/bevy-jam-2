@@ -26,7 +26,7 @@ fn load_camera(mut commands: Commands) {
             },
             ..Default::default()
         })
-        .insert(FollowCam(Vec3::ZERO, 50.));
+        .insert(FollowCam(Vec3::ZERO, 500.));
 }
 
 fn set_user_position(
