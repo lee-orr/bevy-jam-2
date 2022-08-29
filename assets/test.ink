@@ -20,6 +20,9 @@ VAR knows_its_a_lab = false
 
 == play_loop_phase_1 ==
 + play #play
+* [return to woods] -> return_to_woods
+* [front desk] -> front_desk
+* [loading_bay] -> loading_bay_entrance
 + [End Game]
 - 
 -> END
@@ -80,4 +83,14 @@ Hello there! Do you know where we are? #ponterson #activate:into_lab_portal
 Now where is that spirit... Try following the music and maybe we can find it? #cass
 -> play_loop_phase_1
 
--> end_game
+== front_desk ==
+Where is everyone? The front desk is empty...
+-> play_loop_phase_1
+
+== loading_bay_entrance ==
+looks like some kind of loading bay... #deactivate:loading_bay_entrance1 #deactivate:loading_bay_entrance2
+-> play_loop_phase_1
+
+== return_to_woods ==
+We shouldn't leave yet - we need to figure out what's going on! #cass
+-> play_loop_phase_1
